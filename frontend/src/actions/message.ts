@@ -6,6 +6,7 @@ import { MessageSchema } from "@/db/entity/message/message.schema";
 
 type CreateMessageDto = {
   chatId: string;
+  senderId: string;
   content: string;
 };
 
@@ -24,18 +25,22 @@ export async function createMessage(createMessageDto: CreateMessageDto) {
     }
 
     const chat = await chatRepo.findOneBy({
-      id: createMessageDto.chatId
+      id: createMessageDto.chatId,
     });
 
     if (!chat) {
       throw new Error("Chat does not exist");
     }
 
-    const message = messageRepo.create({ chat, content: createMessageDto.content });
+    const message = messageRepo.create({
+      chat,
+      content: createMessageDto.content,
+      senderId: createMessageDto.senderId,
+    });
     const response = await messageRepo.save(message);
 
-    return JSON.parse(JSON.stringify(response));
+    return JSON.parse(JSON.stringify(response)) as Message;
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 }

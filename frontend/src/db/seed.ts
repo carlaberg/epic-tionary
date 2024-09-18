@@ -33,8 +33,8 @@ async function seed() {
 
   // Create messages
   const messageRepo = connection.getRepository(Message);
-  const groupChatMessage = messageRepo.create({ chat: groupChat, content: "My first message" });
-  const singlePersonChatmessage = messageRepo.create({ chat: singlePersonChat, content: "My first message" });
+  const groupChatMessage = messageRepo.create({ chat: groupChat, content: "My first message", senderId: users[0].id});
+  const singlePersonChatmessage = messageRepo.create({ chat: singlePersonChat, content: "My first message", senderId: users[1].id });
   await messageRepo.save([groupChatMessage, singlePersonChatmessage]);
   console.log("Messages saved");
 

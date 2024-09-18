@@ -43,9 +43,9 @@ export async function getCurrentUser() {
     const user = await repo.create(validationResult.data);
     const response = await repo.save(user);
 
-    return JSON.parse(JSON.stringify(response));
+    return JSON.parse(JSON.stringify(response)) as User;
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 }
 
@@ -64,8 +64,8 @@ export async function searchUsers(searchTerm: string) {
       },
     });
 
-    return JSON.parse(JSON.stringify(users));
+    return JSON.parse(JSON.stringify(users)) as User[];
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 }

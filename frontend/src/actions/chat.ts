@@ -3,9 +3,8 @@ import { getConnection } from "@/db/app-data-source";
 import { Chat } from "@/db/entity/chat/chat.entity";
 import { ChatSchema } from "@/db/entity/chat/chat.schema";
 import { User } from "@/db/entity/user/user.entity";
-import { In } from "typeorm";
+import { DeleteResult, In } from "typeorm";
 import { getCurrentUser } from "./user";
-import { revalidatePath } from "next/cache";
 
 type CreateChatDto = {
   members: string[];
@@ -66,10 +65,9 @@ export async function createChat(createChatDto: CreateChatDto) {
     const chat = chatRepo.create({ members });
     const response = await chatRepo.save(chat);
 
-    revalidatePath("/chat");
-    return JSON.parse(JSON.stringify(response));
+    return JSON.parse(JSON.stringify(response)) as Chat;
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 }
 
@@ -80,10 +78,9 @@ export async function deleteChat(id: string) {
   try {
     const response = await chatRepo.delete(id);
 
-    revalidatePath("/chat");
-    return JSON.parse(JSON.stringify(response));
+    return JSON.parse(JSON.stringify(response)) as DeleteResult;
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 }
 
@@ -106,9 +103,9 @@ export async function getChatById(id: string) {
       throw new Error("No chat found");
     }
 
-    return JSON.parse(JSON.stringify(chat));
+    return JSON.parse(JSON.stringify(chat)) as Chat;
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 }
 
@@ -133,8 +130,8 @@ export async function getUserChats() {
       throw new Error("No user found");
     }
 
-    return JSON.parse(JSON.stringify(user.chats));
+    return JSON.parse(JSON.stringify(user.chats)) as Chat[];
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 }

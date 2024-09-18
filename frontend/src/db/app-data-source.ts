@@ -25,7 +25,7 @@ export const getConnection = (): Promise<DataSource> => {
           console.log("Data Source has been initialized!");
           resolve(postgresDataSource);
         })
-        .catch((err: any) => {
+        .catch((err) => {
           console.error("Error during Data Source initialization:", err);
         });
     }

@@ -10,6 +10,9 @@ export class Message {
   @Column()
   content: string;
 
+  @Column()
+  senderId: string;
+
   @ManyToOne(() => Chat, (chat) => chat.messages, {
     onDelete: "CASCADE",
   })

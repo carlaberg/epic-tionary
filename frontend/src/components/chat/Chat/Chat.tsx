@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
@@ -7,93 +7,178 @@ import SendIcon from "@mui/icons-material/Send";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
-import { socket } from "@/socket";
-import { ConnectionState } from "@/components/chat/ConnectionState/ConnectionState";
-import { ConnectionManager } from "@/components/chat/ConnectionManager/ConnectionManager";
 import { ChatMessage } from "../../../../../shared/types/socket-io.types";
 import { useChat } from "@/providers/ChatProvider";
-import { getChatById } from "@/actions/chat";
+import { useUser } from "@/providers/UserProvider";
+import { getChatById, getUserChats } from "@/actions/chat";
+import { Chat as ChatType } from "@/db/entity/chat/chat.entity";
 import { NoActiveChat } from "../NoActiveChat/NoActiveChat";
+import { createMessage } from "@/actions/message";
+import Paper from "@mui/material/Paper";
+import { useSocket } from "@/providers/SocketProvider";
+
+interface MessageProps {
+  children: React.ReactNode;
+  isMyMessage: boolean;
+  userName?: string;
+}
+
+const Message = ({ children, isMyMessage, userName }: MessageProps) => {
+  return (
+    <Box
+      sx={{
+        alignSelf: isMyMessage ? "end" : "start",
+        maxWidth: "300px",
+      }}
+    >
+      {!isMyMessage && (
+        <Typography variant="caption" color={"GrayText"}>
+          {userName}
+        </Typography>
+      )}
+      <Paper
+        sx={{
+          padding: 1,
+          marginBottom: 2,
+          backgroundColor: isMyMessage ? "primary.main" : undefined,
+          color: isMyMessage ? "white" : undefined,
+        }}
+      >
+        <Typography sx={{ alignSelf: "end" }}>{children}</Typography>
+      </Paper>
+    </Box>
+  );
+};
 
 const Chat = () => {
-  const [isConnected, setIsConnected] = useState(socket.connected);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [activeChat, setActiveChat] = useState<any>();
   const [text, setText] = useState("");
-  const chatContext: any = useChat();
-  console.log(activeChat);
+  const chatContext = useChat();
+  const userContext = useUser();
+  const loggedInUser = userContext.state.user;
+  const socketContext = useSocket();
+  const socket = socketContext.state.socket;
+
+  const activeChatRef = useRef(chatContext.state.activeChat);
+
+  useEffect(() => {
+    activeChatRef.current = chatContext.state.activeChat;
+  }, [chatContext.state.activeChat]);
 
   useEffect(() => {
     socket.connect();
 
-    function onConnect() {
-      setIsConnected(true);
+    // Join all rooms that the user is a member of
+    async function onConnect() {
+      const chats = await getUserChats();
+      socket.emit(
+        "joinExistingUserRoomsOnStartup",
+        chats.map((chat) => chat.id)
+      );
     }
 
-    function onDisconnect() {
-      setIsConnected(false);
+    function onChatMessageEvent(message: ChatMessage) {
+      if (message.roomId !== activeChatRef.current?.id) return;
+      setMessages((previous) => [...previous, message]);
+      setText("");
     }
 
-    function onChatMessageEvent(value: ChatMessage) {
-      setMessages((previous) => [...previous, value]);
+    function onJoinChat(chat: ChatType) {
+      socket.emit("joinChat", chat);
+    }
+
+    function onDeleteChat() {
+      setMessages([]);
+      chatContext.actions.setActiveChat(null);
     }
 
     socket.on("connect", onConnect);
-    socket.on("disconnect", onDisconnect);
+    socket.on("joinChat", onJoinChat);
     socket.on("chatMessage", onChatMessageEvent);
+    socket.on("deleteChat", onDeleteChat);
 
     return () => {
       socket.off("connect", onConnect);
-      socket.off("disconnect", onDisconnect);
+      socket.off("joinChat", onJoinChat);
       socket.off("chatMessage", onChatMessageEvent);
+      socket.off("deleteChat", onDeleteChat);
 
       socket.disconnect();
     };
   }, []);
 
   useEffect(() => {
-    if (!chatContext.state.activeChatId) return;
     async function loadChat() {
-      const chat = await getChatById(chatContext.state.activeChatId);
-      setActiveChat(chat);
+      if (!chatContext.state.activeChat) return;
+      const chat = await getChatById(chatContext.state.activeChat.id);
+      chatContext.actions.setActiveChat(chat);
     }
+    setMessages([]);
     loadChat();
-  }, [chatContext.state.activeChatId]);
+  }, [chatContext.state.activeChat?.id]);
 
-  if (!chatContext.state.activeChatId) return <NoActiveChat />;
+  if (!chatContext.state.activeChat) return <NoActiveChat />;
+
+  const messageHistory = chatContext.state.activeChat.messages;
 
   return (
     <div>
-      <ConnectionState isConnected={isConnected} />
-      <ConnectionManager />
-      <Typography>Chat ID: {activeChat?.id}</Typography>
-      <Typography>
+      <Typography sx={{ paddingBottom: 1 }}>
         Chat Members:{" "}
-        {activeChat?.members.map((user: any) => user.username).join(", ")}
+        {chatContext?.state.activeChat.members
+          .map((user) => user.username)
+          .join(", ")}
       </Typography>
       <Card
         variant="outlined"
         sx={{ marginBottom: 2, height: 300, overflowY: "scroll" }}
       >
-        <CardContent>
-          {activeChat?.messages.map((message: any) => (
-            <Typography>{message.content}</Typography>
-          ))}
-          {messages.map((message) => (
-            <Typography>{message}</Typography>
-          ))}
+        <CardContent sx={{ display: "flex", flexDirection: "column" }}>
+          {messageHistory &&
+            messageHistory.map((message) => {
+              return (
+                <Message
+                  key={message.id}
+                  isMyMessage={message.senderId === loggedInUser.id}
+                  userName={loggedInUser.username}
+                >
+                  {message.content}
+                </Message>
+              );
+            })}
+          {messages.map((message, index) => {
+            return (
+              <Message
+                key={index}
+                isMyMessage={message.senderId === loggedInUser.id}
+                userName={loggedInUser.username}
+              >
+                {message.text}
+              </Message>
+            );
+          })}
         </CardContent>
       </Card>
       <Box
         component="form"
         sx={{ display: "flex" }}
         onSubmit={(e) => {
+          if (!chatContext.state.activeChat) return;
           e.preventDefault();
           const elements = new FormData(e.currentTarget);
           const message = elements.get("message") as string;
 
           if (message) {
-            socket.emit("chatMessage", message);
+            createMessage({
+              content: message,
+              chatId: chatContext.state.activeChat.id,
+              senderId: loggedInUser?.id,
+            });
+            socket.emit("chatMessage", {
+              text: message,
+              roomId: chatContext.state.activeChat.id,
+              senderId: loggedInUser?.id,
+            });
           }
 
           e.currentTarget.reset();
@@ -105,12 +190,9 @@ const Chat = () => {
           sx={{ flex: 2, mr: 2 }}
           name="message"
           value={text}
+          onChange={(e) => setText(e.target.value)}
         />
-        <Button
-          type="submit"
-          variant="contained"
-          endIcon={<SendIcon />}
-        >
+        <Button type="submit" variant="contained" endIcon={<SendIcon />}>
           Send
         </Button>
       </Box>
