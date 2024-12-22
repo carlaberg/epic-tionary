@@ -8,11 +8,11 @@ import { Round } from "./entity/round/round.entity";
 
 export const postgresDataSource = new DataSource({
   type: "postgres",
-  host: "localhost",
-  port: 5439,
-  username: "postgres",
-  password: "carlaberg",
-  database: "epicchatdb",
+  host: process.env.PGHOST || "localhost",
+  port: process.env.PGPORT ? parseInt(process.env.PGPORT, 10) : 5439,
+  username: process.env.PGUSER,
+  password: process.env.POSTGRES_PASSWORD,
+  database: process.env.PGDATABASE,
   entities: [User, Chat, Message, Game, Player, Round],
   logging: false,
   synchronize: false,
