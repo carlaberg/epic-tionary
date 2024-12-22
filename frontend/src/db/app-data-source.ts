@@ -11,11 +11,11 @@ export const postgresDataSource = new DataSource({
   host: process.env.PGHOST || "localhost",
   port: process.env.PGPORT ? parseInt(process.env.PGPORT, 10) : 5439,
   username: process.env.PGUSER,
-  password: process.env.POSTGRES_PASSWORD,
+  password: process.env.PGPASSWORD,
   database: process.env.PGDATABASE,
   entities: [User, Chat, Message, Game, Player, Round],
   logging: false,
-  synchronize: false,
+  synchronize: true,
   logger: "debug",
   logNotifications: true,
 });
