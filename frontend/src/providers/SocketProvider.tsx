@@ -1,38 +1,57 @@
-"use client";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
+import { createSocket } from "@/socket";
+import { useAuth } from "@clerk/nextjs";
 
-import { useContext, createContext, useState, ReactNode } from "react";
+interface SocketProviderProps {
+  children: React.ReactNode;
+}
 
 interface SocketContextType {
   state: {
-    socket: Socket;
+    socket: Socket | null;
   };
 }
 
-interface SocketProviderProps {
-  children: ReactNode;
-  socket: Socket;
-}
+const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
-const SocketContext = createContext<SocketContextType>({
-  state: {
-    socket: null as any,
-  },
-});
+export function SocketProvider({ children }: SocketProviderProps) {
+  const { getToken } = useAuth();
+  const [socket, setSocket] = useState<Socket | null>(null);
 
-export function useSocket() {
-  return useContext(SocketContext);
-}
+  useEffect(() => {
+    const loadSocket = async () => {
+      if (socket) return; // Avoid creating multiple socket instances
 
-export function SocketProvider({
-  children,
-  socket: socketServer,
-}: SocketProviderProps) {
-  const [socket, _] = useState<Socket>(socketServer);
+      const newSocket = await createSocket({ getToken });
+      setSocket(newSocket);
+      newSocket.connect();
+    };
+
+    loadSocket();
+
+    return () => {
+      if (socket) {
+        socket.disconnect();
+        setSocket(null);
+      }
+    };
+  }, [getToken, socket]);
+
   const value = {
     state: { socket },
   };
+  
+
   return (
     <SocketContext.Provider value={value}>{children}</SocketContext.Provider>
   );
+}
+
+export function useSocket() {
+  const context = useContext(SocketContext);
+  if (context === undefined) {
+    throw new Error("useSocket must be used within a SocketProvider");
+  }
+  return context;
 }

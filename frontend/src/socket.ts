@@ -17,7 +17,7 @@ export const createSocket = async ({
   const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
     URL as string,
     {
-      autoConnect: false,
+      autoConnect: false, 
       auth: {
         token,
       },

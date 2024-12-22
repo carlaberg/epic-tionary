@@ -2,6 +2,9 @@ import { DataSource } from "typeorm";
 import { User } from "./entity/user/user.entity";
 import { Chat } from "./entity/chat/chat.entity";
 import { Message } from "./entity/message/message.entity";
+import { Player } from "./entity/player/player.entity";
+import { Game } from "./entity/game/game.entity";
+import { Round } from "./entity/round/round.entity";
 
 export const postgresDataSource = new DataSource({
   type: "postgres",
@@ -10,9 +13,11 @@ export const postgresDataSource = new DataSource({
   username: "postgres",
   password: "carlaberg",
   database: "epicchatdb",
-  entities: [User, Chat, Message],
-  logging: true,
+  entities: [User, Chat, Message, Game, Player, Round],
+  logging: false,
   synchronize: false,
+  logger: "debug",
+  logNotifications: true,
 });
 
 // establish database connection

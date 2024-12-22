@@ -1,0 +1,13 @@
+{
+  "name": "epic-tionary",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:frontend": "npm run build --prefix frontend",
+    "start:frontend": "npm run start --prefix frontend"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

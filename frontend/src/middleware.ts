@@ -5,6 +5,7 @@ import {
    
   const isProtectedRoute = createRouteMatcher([
     '/chat(.*)',
+    '/game(.*)',
   ]);
    
   export default clerkMiddleware((auth, req) => {

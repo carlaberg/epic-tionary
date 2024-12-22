@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Header from "@/components/Header/Header";
 import { ClerkProvider } from "@clerk/nextjs";
-import { ChatProvider } from "@/providers/ChatProvider";
-import { UserProvider } from "@/providers/UserProvider";
-import { getCurrentUser } from "@/actions/user";
-import { getUserChats } from "@/actions/chat";
+import CssBaseline from "@mui/material/CssBaseline";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,21 +16,16 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const loggedInUser = await getCurrentUser();
-  const initialChats = await getUserChats();
 
   return (
-    <ClerkProvider>
-      <ChatProvider initialChats={initialChats}>
-        <UserProvider initialUser={loggedInUser}>
-          <html lang="en">
-            <body className={inter.className}>
-              <Header />
-              {children}
-            </body>
-          </html>
-        </UserProvider>
-      </ChatProvider>
-    </ClerkProvider>
+    <html lang="en">
+      <CssBaseline />
+      <body className={inter.className}>
+        <ClerkProvider>
+          <Header />
+          {children}
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }
