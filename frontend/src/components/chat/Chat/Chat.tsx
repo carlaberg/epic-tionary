@@ -66,12 +66,13 @@ const Chat = () => {
   }, [chatContext.state.activeChat]);
 
   useEffect(() => {
-    socket.connect();
+    if (!socket) return;
+    socket?.connect();
 
     // Join all rooms that the user is a member of
     async function onConnect() {
       const chats = await getUserChats();
-      socket.emit(
+      socket?.emit(
         "joinExistingUserRoomsOnStartup",
         chats.map((chat) => chat.id)
       );
@@ -84,7 +85,7 @@ const Chat = () => {
     }
 
     function onJoinChat(chat: ChatType) {
-      socket.emit("joinChat", chat);
+      socket?.emit("joinChat", chat);
     }
 
     function onDeleteChat() {
@@ -92,10 +93,10 @@ const Chat = () => {
       chatContext.actions.setActiveChat(null);
     }
 
-    socket.on("connect", onConnect);
-    socket.on("joinChat", onJoinChat);
-    socket.on("chatMessage", onChatMessageEvent);
-    socket.on("deleteChat", onDeleteChat);
+    socket?.on("connect", onConnect);
+    socket?.on("joinChat", onJoinChat);
+    socket?.on("chatMessage", onChatMessageEvent);
+    socket?.on("deleteChat", onDeleteChat);
 
     return () => {
       socket.off("connect", onConnect);
@@ -174,7 +175,7 @@ const Chat = () => {
               chatId: chatContext.state.activeChat.id,
               senderId: loggedInUser?.id,
             });
-            socket.emit("chatMessage", {
+            socket?.emit("chatMessage", {
               text: message,
               roomId: chatContext.state.activeChat.id,
               senderId: loggedInUser?.id,

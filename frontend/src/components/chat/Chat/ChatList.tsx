@@ -48,12 +48,12 @@ const ChatList = () => {
       setChats((prevChats) => prevChats.filter((c) => c.id !== chat.id));
     }
 
-    socket.on("joinChat", onJoinChat);
-    socket.on("deleteChat", onDeleteChat);
+    socket?.on("joinChat", onJoinChat);
+    socket?.on("deleteChat", onDeleteChat);
 
     return () => {
-      socket.off("joinChat", onJoinChat);
-      socket.off("deleteChat", onDeleteChat);
+      socket?.off("joinChat", onJoinChat);
+      socket?.off("deleteChat", onDeleteChat);
     };
   }, []);
 
@@ -80,7 +80,7 @@ const ChatList = () => {
                 aria-label="delete"
                 onClick={async () => {
                   await deleteChat(chat.id);
-                  socket.emit("deleteChat", chat);
+                  socket?.emit("deleteChat", chat);
                 }}
               >
                 <DeleteIcon />

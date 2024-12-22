@@ -11,18 +11,8 @@ import { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 
 const ChatApp = () => {
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const { getToken } = useAuth();
-
-  useEffect(() => {
-    createSocket({ getToken }).then((socket) => {
-      setSocket(socket);
-    });
-  }, []);
-
-  if (!socket) return null;
   return (
-    <SocketProvider socket={socket}>
+    <SocketProvider>
       <Box display="flex" marginTop="64px">
         <Box width={400} position="relative">
           <Box

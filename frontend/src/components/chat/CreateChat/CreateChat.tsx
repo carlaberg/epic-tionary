@@ -53,7 +53,7 @@ export default function CreateChat() {
           const chat = await createChat({
             members: selectedUsers.map(({ id }) => id),
           });
-          socket.emit("createChat", chat);
+          socket?.emit("createChat", chat);
           setSelectedUsers([]);
           chatContext.actions.setActiveChat(chat);
         }}
