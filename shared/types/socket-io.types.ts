@@ -1,5 +1,4 @@
 import { Game } from "@/db/entity/game/game.entity";
-import { Chat } from "../../frontend/src/db/entity/chat/chat.entity";
 
 export type ChatMessage = {
   roomId: string;
@@ -55,11 +54,8 @@ export type StartGamePayLoad = {
   emitter: string;
 };
 export interface ServerToClientEvents {
-  createChat: (chat: Chat) => void;
-  deleteChat: (chat: Chat) => void;
   chatMessage: (message: ChatMessage) => void;
   joinExistingUserRoomsOnStartup: (roomIds: string[]) => void;
-  joinChat: (chat: Chat) => void;
   startDrawing: (drawMeta: { x: number; y: number }) => void;
   draw: (drawMeta: { x: number; y: number }) => void;
   stopDrawing: () => void;
@@ -79,11 +75,8 @@ export interface ServerToClientEvents {
 }
 
 export interface ClientToServerEvents {
-  createChat: (chat: Chat) => void;
-  deleteChat: (chat: Chat) => void;
   chatMessage: (message: ChatMessage) => void;
   joinExistingUserRoomsOnStartup: (roomIds: string[]) => void;
-  joinChat: (chat: Chat) => void;
   startDrawing: (drawMeta: { x: number; y: number }) => void;
   draw: (drawMeta: { x: number; y: number }) => void;
   stopDrawing: () => void;
