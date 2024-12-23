@@ -1,7 +1,5 @@
 import { DataSource } from "typeorm";
 import { User } from "./entity/user/user.entity";
-import { Chat } from "./entity/chat/chat.entity";
-import { Message } from "./entity/message/message.entity";
 import { Player } from "./entity/player/player.entity";
 import { Game } from "./entity/game/game.entity";
 import { Round } from "./entity/round/round.entity";
