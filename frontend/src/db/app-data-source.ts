@@ -1,3 +1,4 @@
+import "../../envConfig";
 import { DataSource } from "typeorm";
 import { User } from "./entity/user/user.entity";
 import { Player } from "./entity/player/player.entity";
@@ -13,7 +14,7 @@ export const postgresDataSource = new DataSource({
   database: process.env.PGDATABASE,
   entities: [User, Game, Player, Round],
   logging: false,
-  synchronize: true,
+  synchronize: false,
   logger: "debug",
   logNotifications: true,
 });
