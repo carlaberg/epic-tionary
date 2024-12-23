@@ -14,7 +14,4 @@ export class User {
 
   @Column({ unique: true })
   clerkId: string;
-
-  @ManyToMany(() => Chat, (chat) => chat.members)
-  chats: Chat[];
 }
