@@ -10,8 +10,7 @@
     "typeorm": "typeorm-ts-node-commonjs",
     "db:sync": "npm run typeorm schema:sync -- -d src/db/app-data-source.ts",
     "db:drop": "npm run typeorm schema:drop -- -d src/db/app-data-source.ts",
-    "db:seed": "npx ts-node src/db/seed.ts",
-    "db:restore": "npm run db:drop && npm run db:sync && npm run db:seed",
+    "db:restore": "npm run db:drop && npm run db:sync",
     "test": "npx ts-node src/__test__/test.ts"
   },
   "dependencies": {
