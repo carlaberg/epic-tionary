@@ -16,9 +16,6 @@ export async function getCurrentUser() {
     }
 
     const dbUser = await repo.findOne({
-      relations: { chats: {
-        members: true
-      } },
       where: {
         clerkId: clerkUser.id,
       },
