@@ -13,6 +13,7 @@ export const postgresDataSource = new DataSource({
   password: process.env.PGPASSWORD,
   database: process.env.PGDATABASE,
   entities: [User, Game, Player, Round],
+  // migrations: ["src/db/migrations/*.ts"], 
   logging: false,
   synchronize: false,
   logger: "debug",

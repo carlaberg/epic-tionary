@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:frontend": "npm install --prefix frontend && npm run build --prefix frontend",
-    "start:frontend": "npm run db:restore --prefix frontend && npm run start --prefix frontend -- -p 8080"
+    "start:frontend": "npm run start --prefix frontend -- -p 8080"
   },
   "author": "",
   "license": "ISC",
