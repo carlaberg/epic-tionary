@@ -24,7 +24,7 @@ export const postgresDataSource = new DataSource({
   entities: [User, Game, Player, Round],
   // migrations: ["src/db/migrations/*.ts"],
   logging: false,
-  synchronize: false,
+  synchronize: true,
   logger: "debug",
   logNotifications: true,
 });
