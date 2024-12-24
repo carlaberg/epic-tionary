@@ -5,6 +5,15 @@ import { Player } from "./entity/player/player.entity";
 import { Game } from "./entity/game/game.entity";
 import { Round } from "./entity/round/round.entity";
 
+console.log("PGHOST", process.env.PGHOST);
+console.log(
+  "PGPORT",
+  process.env.PGPORT ? parseInt(process.env.PGPORT, 10) : 5439
+);
+console.log("PGUSER", process.env.PGUSER);
+console.log("PGPASSWORD", process.env.PGPASSWORD);
+console.log("PGDATABASE", process.env.PGDATABASE);
+
 export const postgresDataSource = new DataSource({
   type: "postgres",
   host: process.env.PGHOST || "localhost",
@@ -13,7 +22,7 @@ export const postgresDataSource = new DataSource({
   password: process.env.PGPASSWORD,
   database: process.env.PGDATABASE,
   entities: [User, Game, Player, Round],
-  // migrations: ["src/db/migrations/*.ts"], 
+  // migrations: ["src/db/migrations/*.ts"],
   logging: false,
   synchronize: false,
   logger: "debug",
