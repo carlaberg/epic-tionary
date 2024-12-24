@@ -9,6 +9,7 @@ import Box from "@mui/material/Box";
 import { NoActiveGame } from "@/components/game/NoActiveGame/NoActiveGame";
 
 const GamePage = () => {
+  console.log('GamePage');
   return (
     <Box
       display="flex"
