@@ -1,12 +1,7 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { Game } from "../game/game.entity";
 
-@Entity()
+@Entity("round")
 export class Round {
   @PrimaryGeneratedColumn("uuid")
   id: string;

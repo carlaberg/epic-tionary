@@ -1,13 +1,8 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-} from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 import { User } from "../user/user.entity";
 import { Game } from "../game/game.entity";
 
-@Entity()
+@Entity("player")
 export class Player {
   @PrimaryGeneratedColumn("uuid")
   id: string;

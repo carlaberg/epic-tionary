@@ -14,7 +14,7 @@ import { Player } from "../player/player.entity";
 import { Round } from "../round/round.entity";
 import { User } from "../user/user.entity";
 
-@Entity()
+@Entity("game")
 export class Game {
   @PrimaryGeneratedColumn("uuid")
   id: string;
