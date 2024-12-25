@@ -86,37 +86,6 @@ io.on("connection", (socket) => {
     // io.to(gameId).emit("playAgain", gameId);
   });
 
-  // CHAT
-
-  socket.on("joinExistingUserRoomsOnStartup", (roomIds) => {
-    roomIds.forEach((id) => {
-      socket.join(id);
-    });
-  });
-
-  socket.on("chatMessage", (msg) => {
-    io.to(msg.roomId).emit("chatMessage", msg);
-  });
-
-  socket.on("createChat", (chat) => {
-    socket.join(chat.id);
-    io.emit("joinChat", chat);
-  });
-
-  socket.on("joinChat", (chat) => {
-    const isMember = chat.members.some(
-      (member) => member.clerkId === socket.handshake.auth.user
-    );
-
-    if (isMember) {
-      socket.join(chat.id);
-    }
-  });
-
-  socket.on("deleteChat", (chat) => {
-    io.emit("deleteChat", chat);
-  });
-
   socket.on("disconnect", () => {
     onlineUsers.delete(socket.handshake.auth.user);
     io.emit("userOffline", { onlineUsers: Array.from(onlineUsers) });
