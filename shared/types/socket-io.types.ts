@@ -1,11 +1,3 @@
-import { Game } from "@/db/entity/game/game.entity";
-
-export type ChatMessage = {
-  roomId: string;
-  senderId: string;
-  text: string;
-};
-
 export type GamePayload = {
   id: string;
   onlineUsers?: string[];
@@ -17,11 +9,6 @@ export type UserOfflinePayload = {
 
 export type UserOnlinePayload = {
   onlineUsers: string[];
-};
-
-export type UpdateGamePayload = {
-  game: Game;
-  onlineUsers?: string[];
 };
 
 export type GuessPayload = {
@@ -50,11 +37,10 @@ export type NewRoundPayload = {
 };
 
 export type StartGamePayLoad = {
-  game: Game;
+  gameId: string;
   emitter: string;
 };
 export interface ServerToClientEvents {
-  chatMessage: (message: ChatMessage) => void;
   joinExistingUserRoomsOnStartup: (roomIds: string[]) => void;
   startDrawing: (drawMeta: { x: number; y: number }) => void;
   draw: (drawMeta: { x: number; y: number }) => void;
@@ -62,7 +48,6 @@ export interface ServerToClientEvents {
   clearCanvas: () => void;
   joinGame: (game: GamePayload) => void;
   startGame: (payload: StartGamePayLoad) => void;
-  updateGame: (payload: UpdateGamePayload) => void;
   userOffline: (payload: UserOfflinePayload) => void;
   userOnline: (payload: UserOnlinePayload) => void;
   guess: (payload: GuessPayload) => void;
@@ -75,7 +60,6 @@ export interface ServerToClientEvents {
 }
 
 export interface ClientToServerEvents {
-  chatMessage: (message: ChatMessage) => void;
   joinExistingUserRoomsOnStartup: (roomIds: string[]) => void;
   startDrawing: (drawMeta: { x: number; y: number }) => void;
   draw: (drawMeta: { x: number; y: number }) => void;
@@ -83,7 +67,6 @@ export interface ClientToServerEvents {
   clearCanvas: () => void;
   joinGame: (game: GamePayload) => void;
   startGame: (payload: StartGamePayLoad) => void;
-  updateGame: (payload: UpdateGamePayload) => void;
   userOffline: (payload: UserOfflinePayload) => void;
   userOnline: (payload: UserOnlinePayload) => void;
   guess: (payload: GuessPayload) => void;

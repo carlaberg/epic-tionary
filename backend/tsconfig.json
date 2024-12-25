@@ -2,6 +2,8 @@
   "compilerOptions": {
     "lib": ["es5", "es6", "dom"],
     "outDir": "./dist",
+    // "rootDir": "./src",
+    // "baseUrl": "./src",
     "target": "es2016",
     "module": "commonjs",
     "esModuleInterop": true,
@@ -11,5 +13,10 @@
     "strictNullChecks": true,
     "skipLibCheck": true,
     "moduleResolution": "node",
-  }
+    "paths": {
+      "@shared/*": ["../../shared/*"]
+    }
+  },
+  "include": ["src/**/*"]
+  // "exclude": ["node_modules", "../../frontend"]
 }

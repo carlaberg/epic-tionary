@@ -25,7 +25,6 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(server, {
 io.use(authMiddleware);
 
 io.on("connection", (socket) => {
-  
   // GAME
   onlineUsers.add(socket.handshake.auth.user);
 
@@ -38,7 +37,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("startGame", (payload) => {
-    io.to(payload.game.id).emit("startGame", payload);
+    io.to(payload.gameId).emit("startGame", payload);
   });
 
   socket.on("startDrawing", (drawMeta) => {

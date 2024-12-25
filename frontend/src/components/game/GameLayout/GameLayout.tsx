@@ -122,7 +122,7 @@ const GameLayout = ({ initialGame }: GameLayoutProps) => {
   }
 
   async function onStartGame(payload: StartGamePayLoad) {
-    revalidateClientSide(`/game/${payload.game.id}`);
+    revalidateClientSide(`/game/${payload.gameId}`);
     await startRoundEndCountDown();
 
     // Only emit event once
@@ -304,7 +304,7 @@ const GameLayout = ({ initialGame }: GameLayoutProps) => {
                 await startGame(gameRef.current.id);
                 if (socket) {
                   socket.emit("startGame", {
-                    game: gameRef.current,
+                    gameId: gameRef.current.id,
                     emitter: userContext.state.user.id,
                   });
                 }
