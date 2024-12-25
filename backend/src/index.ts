@@ -25,6 +25,7 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(server, {
 io.use(authMiddleware);
 
 io.on("connection", (socket) => {
+  
   // GAME
   onlineUsers.add(socket.handshake.auth.user);
 
