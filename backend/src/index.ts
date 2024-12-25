@@ -19,6 +19,7 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(server, {
       "http://localhost:3000",
       "http://192.168.1.78:3000",
       "http://192.168.1.134:3000",
+      "*",
     ],
   },
 });
