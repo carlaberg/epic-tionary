@@ -15,6 +15,7 @@ const server = createServer(app);
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(server, {
   cors: {
     origin: [
+      "https://epic-tionary-production.up.railway.app",
       "http://localhost:3000",
       "http://192.168.1.78:3000",
       "http://192.168.1.134:3000",
