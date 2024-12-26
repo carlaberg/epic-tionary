@@ -1,7 +1,7 @@
 import jwt, { JwtHeader, SigningKeyCallback } from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
 var client = jwksClient({
-  jwksUri: "https://immense-lamb-27.clerk.accounts.dev/.well-known/jwks.json",
+  jwksUri: "https://clerk.epictionary.carlaberg.se/.well-known/jwks.json",
 });
 
 function validateToken(token: string, publicKey: string) {
