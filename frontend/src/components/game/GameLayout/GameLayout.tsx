@@ -85,7 +85,6 @@ const GameLayout = ({ initialGame }: GameLayoutProps) => {
     isGameFinishedRef.current = isGameFinished;
 
     setPlayers(getPlayers(initialGame.players, []));
-    console.log("initialGame", initialGame);
   }, [initialGame]);
 
   useEffect(() => {
@@ -145,14 +144,8 @@ const GameLayout = ({ initialGame }: GameLayoutProps) => {
   async function onAllGuessedCorrect(payload: AllCorrectGuessPayload) {
     const isFinised = clearRoundEndCountDown();
     const game = gameRef.current;
-    console.log({
-      event: "onAllGuessedCorrect",
-      emitter: payload.emitter,
-      user: userContext.state.user.id,
-    });
 
     // If game is over, show message with winner
-    console.log(isGameFinishedRef.current);
     if (isGameFinishedRef.current) {
       setShowFinishScreen(true);
       return;

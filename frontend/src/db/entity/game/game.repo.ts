@@ -9,7 +9,6 @@ async function createGame(gameData?: Partial<Game>) {
   const gameRepo = connection.getRepository(Game);
 
   const loggedInUser = await getCurrentUser();
-  console.log("logged in user", loggedInUser);
   const game = await gameRepo.save(
     gameRepo.create({
       host: loggedInUser,

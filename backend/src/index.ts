@@ -24,7 +24,7 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(server, {
   },
 });
 
-// io.use(authMiddleware);
+io.use(authMiddleware);
 
 io.on("connection", (socket) => {
   // GAME
@@ -79,7 +79,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("playAgain", (gameId) => {
-    console.log("playAgain", gameId);
     io.emit("playAgain", gameId);
 
     // TODO: SHould be sent to game room only

@@ -76,11 +76,6 @@ const GuessBox = ({ game: initialGame }: GuessBoxProps) => {
       }
 
       // All players have places a correct guess
-      console.log({
-        event: "hasAllPlayersGuessedCorrectly in submit handler",
-        withGame: hasAllPlayersGuessedCorrectly(game),
-        withInitialGame: hasAllPlayersGuessedCorrectly(initialGame),
-      });
       if (hasAllPlayersGuessedCorrectly(game)) {
         if (socket) {
           socket.emit("allGuessedCorrect", {
@@ -121,11 +116,6 @@ const GuessBox = ({ game: initialGame }: GuessBoxProps) => {
 export default GuessBox;
 
 function hasAllPlayersGuessedCorrectly(game: Game): boolean {
-  console.log({
-    event: "hasAllPlayersGuessedCorrectly",
-    correctGuessers: game.currentRound.correctGuessers,
-    nonDrawingPlayers: game.players.filter((player) => !player.isDrawing),
-  });
   const nonDrawingPlayers = game.players.length - 1;
   return game.currentRound.correctGuessers.length + 1 === nonDrawingPlayers;
 }
