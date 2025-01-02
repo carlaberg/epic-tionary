@@ -1,7 +1,7 @@
 import jwt, { JwtHeader, SigningKeyCallback } from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
 var client = jwksClient({
-  jwksUri: "https://clerk.epictionary.carlaberg.se/.well-known/jwks.json",
+  jwksUri: process.env.JWKS_URI || "",
 });
 
 function validateToken(token: string, publicKey: string) {
@@ -20,7 +20,7 @@ function validateToken(token: string, publicKey: string) {
         }
       );
     } catch (error) {
-        console.log("error", error);
+      console.log("error", error);
       reject(undefined);
     }
   });
