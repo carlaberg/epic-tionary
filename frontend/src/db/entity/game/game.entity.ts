@@ -44,7 +44,7 @@ export class Game {
   @AfterLoad()
   @AfterInsert()
   @AfterUpdate()
-  async setDefaults() {
+  async setDefaults?() {
     if (!this.players) {
       this.players = [];
     }
