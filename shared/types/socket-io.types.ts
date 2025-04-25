@@ -1,3 +1,11 @@
+import { Game } from "@/db/entity/game/game.entity";
+import { GameActions } from "./actions.types";
+
+export enum TimerEvent {
+  ROUND = "ROUND",
+  ROUND_PAUSE = "ROUND_PAUSE",
+}
+
 export type GamePayload = {
   id: string;
   onlineUsers?: string[];
@@ -37,8 +45,23 @@ export type NewRoundPayload = {
 };
 
 export type StartGamePayLoad = {
+  game: Game;
+};
+
+export type TimerPayload = {
   gameId: string;
+  duration: number;
+  event: TimerEvent;
   emitter: string;
+};
+
+export type UpdateTimerPayload = TimerPayload & {
+  secondsLeft: number;
+};
+
+export type UpdateGameStatePayload = {
+  gameId: string;
+  action: GameActions;
 };
 export interface ServerToClientEvents {
   joinExistingUserRoomsOnStartup: (roomIds: string[]) => void;
@@ -57,6 +80,8 @@ export interface ServerToClientEvents {
   roundTimeIsUp: (payload: RoundTimeIsUpPayload) => void;
   newRound: (payload: NewRoundPayload) => void;
   playAgain: (gameId: string) => void;
+  updateTimer: (payload: UpdateTimerPayload) => void;
+  updateGameState: (payload: UpdateGameStatePayload) => void;
 }
 
 export interface ClientToServerEvents {
@@ -76,4 +101,6 @@ export interface ClientToServerEvents {
   roundTimeIsUp: (payload: RoundTimeIsUpPayload) => void;
   newRound: (payload: NewRoundPayload) => void;
   playAgain: (gameId: string) => void;
+  startTimer: (payload: TimerPayload) => void;
+  updateGameState: (payload: UpdateGameStatePayload) => void;
 }

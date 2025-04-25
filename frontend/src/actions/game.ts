@@ -2,7 +2,6 @@
 import { Game } from "@/db/entity/game/game.entity";
 import { getCurrentUser } from "./user";
 import { Player } from "@/db/entity/player/player.entity";
-import { revalidatePath } from "next/cache";
 import { WORDS } from "@/constants";
 import { gameRepo } from "@/db/entity/game/game.repo";
 import { playerRepo } from "@/db/entity/player/player.repo";
@@ -20,7 +19,6 @@ export async function getGameById(id: string) {
 export async function createGame() {
   try {
     const game = await gameRepo.createGame();
-    revalidatePath(`/game/${game.id}`);
     return JSON.parse(JSON.stringify(game)) as Game;
   } catch (error) {
     throw error;
@@ -56,7 +54,6 @@ export async function addPlayer(id: string) {
       players: [...game.players, player],
     });
 
-    revalidatePath(`/game/${id}`);
     return JSON.parse(JSON.stringify(updatedGame)) as Game;
   } catch (error) {
     throw error;
@@ -72,7 +69,7 @@ export async function startGame(id: string) {
 
     await playerRepo.updatePlayer(player.id, { isDrawing: true });
 
-    const updatedGame = await gameRepo.updateGame(id, {
+    await gameRepo.updateGame(id, {
       started: true,
       currentRound: round,
       rounds: [...game.rounds, round],
@@ -80,7 +77,8 @@ export async function startGame(id: string) {
       word,
     });
 
-    revalidatePath(`/game/${id}`);
+    const updatedGame = await gameRepo.getGameById(id);
+
     return JSON.parse(JSON.stringify(updatedGame)) as Game;
   } catch (error) {
     throw error;
@@ -105,7 +103,7 @@ export async function newRound(id: string) {
     });
     await playerRepo.updatePlayer(nextDrawingPlayer.id, { isDrawing: true });
 
-    const updatedGame = await gameRepo.updateGame(id, {
+    await gameRepo.updateGame(id, {
       started: true,
       currentRound: round,
       rounds: [...game.rounds, round],
@@ -113,7 +111,7 @@ export async function newRound(id: string) {
       word,
     });
 
-    revalidatePath(`/game/${id}`);
+    const updatedGame = await gameRepo.getGameById(id);
 
     return JSON.parse(JSON.stringify(updatedGame)) as Game;
   } catch (error) {
@@ -142,7 +140,6 @@ export async function playAgain(game: Game) {
       players: newPlayers,
     });
 
-    revalidatePath(`/game/${newGame.id}`);
     return JSON.parse(JSON.stringify(newGameWithSamePlayers)) as Game;
   } catch (error) {
     throw error;

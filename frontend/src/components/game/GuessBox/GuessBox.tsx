@@ -4,21 +4,20 @@ import { useUser } from "@/providers/UserProvider";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import MessageModal from "../MessageModal/MessageModal";
-import useCountDown from "@/hooks/useCountDown";
 import { updateRound } from "@/actions/round";
 import { updatePlayer } from "@/actions/player";
+import { GameActionTypes } from "../../../../../shared/types/actions.types";
 
 type GuessBoxProps = {
-  game: Game;
+  gameState: Game;
 };
 
-const GuessBox = ({ game: initialGame }: GuessBoxProps) => {
+const GuessBox = ({ gameState }: GuessBoxProps) => {
   const socketContext = useSocket();
   const socket = socketContext.state.socket;
   const user = useUser().state.user;
-  const [game, setGame] = useState(initialGame);
   const [modalProps, setModalProps] = useState({
     open: false,
     title: "",
@@ -26,68 +25,103 @@ const GuessBox = ({ game: initialGame }: GuessBoxProps) => {
   });
   const [guess, setGuess] = useState("");
 
-  useEffect(() => {
-    setGame(initialGame);
-  }, [initialGame]);
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Player placed a guess
-    await updateRound(game.currentRound.id, {
-      guesses: [...game.currentRound.guesses, guess],
-    });
+    const stateBackup = gameState;
 
-    if (socket) {
-      socket.emit("guess", { guess, gameId: game.id });
-    }
+    try {
+      // Player placed a guess
+      socket?.emit("updateGameState", {
+        gameId: gameState.id,
+        action: {
+          type: GameActionTypes.GUESS,
+          payload: guess,
+        },
+      });
 
-    // Player placed a correct guess
-    if (guess?.toLowerCase() === game.word?.toLowerCase()) {
-      const guessingPlayer = game.players.find(
-        (player) => player.user.id === user.id
-      );
-      const drawingPlayer = game.players.find((player) => player.isDrawing);
+      updateRound(gameState.currentRound.id, {
+        guesses: [...gameState.currentRound.guesses, guess],
+      });
 
-      if (drawingPlayer) {
-        await updatePlayer(drawingPlayer?.id, {
-          score: drawingPlayer.score + 1,
-        });
-      }
+      // Player placed a correct guess
+      if (guess?.toLowerCase() === gameState.word?.toLowerCase()) {
+        const guessingPlayer = gameState.players.find(
+          (player) => player.user.id === user.id
+        );
+        const drawingPlayer = gameState.players.find(
+          (player) => player.isDrawing
+        );
 
-      if (guessingPlayer) {
-        await updatePlayer(guessingPlayer?.id, {
-          score: guessingPlayer.score + 1,
-        });
-        await updateRound(game.currentRound.id, {
-          correctGuessers: [
-            ...game.currentRound.correctGuessers,
-            guessingPlayer.user.id,
-          ],
-        });
-      }
+        if (drawingPlayer) {
+          socket?.emit("updateGameState", {
+            gameId: gameState.id,
+            action: {
+              type: GameActionTypes.INCREMENT_SCORE,
+              payload: {
+                playerId: drawingPlayer.id,
+              },
+            },
+          });
 
-      if (socket) {
-        socket.emit("correctGuess", {
-          guess,
-          gameId: game.id,
-          player: user.username,
-        });
-      }
+          await updatePlayer(drawingPlayer?.id, {
+            score: drawingPlayer.score + 1,
+          });
+        }
 
-      // All players have places a correct guess
-      if (hasAllPlayersGuessedCorrectly(game)) {
-        if (socket) {
-          socket.emit("allGuessedCorrect", {
+        if (guessingPlayer) {
+          socket?.emit("updateGameState", {
+            gameId: gameState.id,
+            action: {
+              type: GameActionTypes.INCREMENT_SCORE,
+              payload: {
+                playerId: guessingPlayer.id,
+              },
+            },
+          });
+
+          await updatePlayer(guessingPlayer?.id, {
+            score: guessingPlayer.score + 1,
+          });
+
+          socket?.emit("updateGameState", {
+            gameId: gameState.id,
+            action: {
+              type: GameActionTypes.ADD_CORRECT_GUESSER,
+              payload: {
+                playerId: guessingPlayer.id,
+              },
+            },
+          });
+
+          await updateRound(gameState.currentRound.id, {
+            correctGuessers: [
+              ...gameState.currentRound.correctGuessers,
+              guessingPlayer.user.id,
+            ],
+          });
+        }
+
+        // All players have places a correct guess
+        if (hasAllPlayersGuessedCorrectly(gameState)) {
+          socket?.emit("allGuessedCorrect", {
             guess,
-            gameId: initialGame.id,
-            player: user.username,
+            gameId: gameState.id,
             emitter: user.id,
           });
         }
       }
+      setGuess("");
+    } catch (error) {
+      // Revert game state to previous state if saving to DB fails
+      socket?.emit("updateGameState", {
+        gameId: gameState.id,
+        action: {
+          type: GameActionTypes.SET_STATE,
+          payload: stateBackup,
+        },
+      });
     }
-    setGuess("");
   };
 
   return (

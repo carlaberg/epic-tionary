@@ -2,6 +2,10 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import { createSocket } from "@/socket";
 import { useAuth } from "@clerk/nextjs";
+import {
+  ClientToServerEvents,
+  ServerToClientEvents,
+} from "../../../shared/types/socket-io.types";
 
 interface SocketProviderProps {
   children: React.ReactNode;
@@ -9,7 +13,7 @@ interface SocketProviderProps {
 
 interface SocketContextType {
   state: {
-    socket: Socket | null;
+    socket: Socket<ServerToClientEvents, ClientToServerEvents> | null;
   };
 }
 
@@ -17,7 +21,10 @@ const SocketContext = createContext<SocketContextType | undefined>(undefined);
 
 export function SocketProvider({ children }: SocketProviderProps) {
   const { getToken } = useAuth();
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const [socket, setSocket] = useState<Socket<
+    ServerToClientEvents,
+    ClientToServerEvents
+  > | null>(null);
 
   useEffect(() => {
     const loadSocket = async () => {
@@ -41,7 +48,6 @@ export function SocketProvider({ children }: SocketProviderProps) {
   const value = {
     state: { socket },
   };
-  
 
   return (
     <SocketContext.Provider value={value}>{children}</SocketContext.Provider>

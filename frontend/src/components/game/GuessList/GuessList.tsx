@@ -7,36 +7,36 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem/ListItem";
 
 type GuessListProps = {
-  initialGuesses: string[];
+  guesses: string[];
 };
 
-const GuessList = ({ initialGuesses }: GuessListProps) => {
-  const [guesses, setGuesses] = useState(initialGuesses);
-  const socket = useSocket().state.socket;
+const GuessList = ({ guesses }: GuessListProps) => {
+  // const [guesses, setGuesses] = useState(initialGuesses);
+  // const socket = useSocket().state.socket;
   const listRef = useRef<HTMLUListElement>(null);
 
-  useEffect(() => {
-    setGuesses(initialGuesses);
-  }, [initialGuesses]);
+  // useEffect(() => {
+  //   setGuesses(initialGuesses);
+  // }, [initialGuesses]);
 
-  useEffect(() => {
-    if (!socket) return;
-    const handleGuess = (payload: GuessPayload) => {
-      setGuesses((prevGuesses) => [...prevGuesses, payload.guess]);
-    };
+  // useEffect(() => {
+  //   if (!socket) return;
+  //   const handleGuess = (payload: GuessPayload) => {
+  //     setGuesses((prevGuesses) => [...prevGuesses, payload.guess]);
+  //   };
 
-    socket.on("guess", handleGuess);
+  //   socket.on("guess", handleGuess);
 
-    return () => {
-      socket.off("guess", handleGuess);
-    };
-  }, []);
+  //   return () => {
+  //     socket.off("guess", handleGuess);
+  //   };
+  // }, []);
 
-  useEffect(() => {
-    if (listRef.current) {
-      listRef.current.scrollTop = listRef.current.scrollHeight;
-    }
-  }, [guesses]);
+  // useEffect(() => {
+  //   if (listRef.current) {
+  //     listRef.current.scrollTop = listRef.current.scrollHeight;
+  //   }
+  // }, [guesses]);
 
   return (
     <Box>

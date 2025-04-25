@@ -10,6 +10,8 @@ import { authMiddleware } from "./auth";
 
 const app = express();
 const onlineUsers: Set<string> = new Set();
+let isTimerRunning = false;
+let interval: NodeJS.Timeout | null = null;
 
 const server = createServer(app);
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(server, {
@@ -39,7 +41,36 @@ io.on("connection", (socket) => {
   });
 
   socket.on("startGame", (payload) => {
-    io.to(payload.gameId).emit("startGame", payload);
+    io.to(payload.game.id).emit("startGame", payload);
+  });
+
+  socket.on("startTimer", (payload) => {
+    if (isTimerRunning) {
+      console.log("Timer is already running");
+      return;
+    }
+
+    isTimerRunning = true;
+
+    let counter = payload.duration;
+    interval = setInterval(() => {
+      if (counter <= 0) {
+        if (interval !== null) {
+          clearInterval(interval);
+        }
+        io.to(payload.gameId).emit("updateTimer", {
+          ...payload,
+          secondsLeft: 0,
+        });
+        isTimerRunning = false;
+      } else {
+        io.to(payload.gameId).emit("updateTimer", {
+          ...payload,
+          secondsLeft: counter,
+        });
+        counter -= 1;
+      }
+    }, 1000);
   });
 
   socket.on("startDrawing", (drawMeta) => {
@@ -58,24 +89,16 @@ io.on("connection", (socket) => {
     io.emit("clearCanvas");
   });
 
-  socket.on("guess", (payload) => {
-    io.to(payload.gameId).emit("guess", payload);
-  });
-
-  socket.on("correctGuess", (payload) => {
-    io.to(payload.gameId).emit("correctGuess", payload);
-  });
-
   socket.on("allGuessedCorrect", (payload) => {
+    isTimerRunning = false;
+    if (interval !== null) {
+      clearInterval(interval);
+    }
     io.to(payload.gameId).emit("allGuessedCorrect", payload);
   });
 
   socket.on("roundTimeIsUp", (payload) => {
     io.to(payload.gameId).emit("roundTimeIsUp", payload);
-  });
-
-  socket.on("newRound", (payload) => {
-    io.to(payload.gameId).emit("newRound", payload);
   });
 
   socket.on("playAgain", (gameId) => {
@@ -85,6 +108,10 @@ io.on("connection", (socket) => {
     // Hint: need to join game when pplaying again
     // and leave previous game room
     // io.to(gameId).emit("playAgain", gameId);
+  });
+
+  socket.on("updateGameState", (payload) => {
+    io.to(payload.gameId).emit("updateGameState", payload);
   });
 
   socket.on("disconnect", () => {
