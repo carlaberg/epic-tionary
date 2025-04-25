@@ -1,5 +1,5 @@
-import { GameActions } from "../../frontend/src/components/game/GameLayout/gameReducer";
-import { Game } from "../../frontend/src/db/entity/game/game.entity";
+// import { GameActions } from "../../frontend/src/components/game/GameLayout/gameReducer";
+// import { Game } from "../../frontend/src/db/entity/game/game.entity";
 
 export enum TimerEvent {
   ROUND = "ROUND",
@@ -45,7 +45,7 @@ export type NewRoundPayload = {
 };
 
 export type StartGamePayLoad = {
-  game: Game;
+  game: any; // TODO: Replace with actual type
 };
 
 export type TimerPayload = {
@@ -61,7 +61,7 @@ export type UpdateTimerPayload = TimerPayload & {
 
 export type UpdateGameStatePayload = {
   gameId: string;
-  action: GameActions;
+  action: any; // TODO: Replace with actual type
 };
 export interface ServerToClientEvents {
   joinExistingUserRoomsOnStartup: (roomIds: string[]) => void;
