@@ -57,6 +57,7 @@ const GameLayout = ({ initialGame }: GameLayoutProps) => {
     title: "",
     message: "",
   });
+  
   const userContext = useUser();
 
   const drawingPlayer = gameState.players.find((player) => player.isDrawing);
