@@ -8,6 +8,7 @@ import {
 } from "../../shared/types/socket-io.types";
 import { authMiddleware } from "./auth";
 
+
 const app = express();
 const onlineUsers: Set<string> = new Set();
 let isTimerRunning = false;
