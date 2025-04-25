@@ -8,7 +8,7 @@ import { useState } from "react";
 import MessageModal from "../MessageModal/MessageModal";
 import { updateRound } from "@/actions/round";
 import { updatePlayer } from "@/actions/player";
-import { GameActionTypes } from "../../../../../shared/types/actions.types";
+import { GameActionTypes } from "../GameLayout/gameReducer";
 
 type GuessBoxProps = {
   gameState: Game;

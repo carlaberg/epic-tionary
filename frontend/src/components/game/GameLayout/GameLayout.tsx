@@ -23,8 +23,7 @@ import GuessList from "../GuessList/GuessList";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import MessageModal from "../MessageModal/MessageModal";
-import { gameReducer } from "./gameReducer";
-import { GameActionTypes } from "../../../../../shared/types/actions.types";
+import { GameActionTypes, gameReducer } from "./gameReducer";
 
 enum NetworkStatus {
   Online = "online",
@@ -57,7 +56,7 @@ const GameLayout = ({ initialGame }: GameLayoutProps) => {
     title: "",
     message: "",
   });
-  
+
   const userContext = useUser();
 
   const drawingPlayer = gameState.players.find((player) => player.isDrawing);
