@@ -17,7 +17,7 @@ export async function getCurrentUser() {
 
     const dbUser = await repo.findOne({
       where: {
-        clerkId: clerkUser.id,
+        email: clerkUser.primaryEmailAddress?.emailAddress,
       },
     });
 
