@@ -1,5 +1,5 @@
+import { GameActions } from "@/components/game/GameLayout/gameReducer";
 import { Game } from "@/db/entity/game/game.entity";
-import { GameActions } from "./actions.types";
 
 export enum TimerEvent {
   ROUND = "ROUND",
