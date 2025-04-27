@@ -2,7 +2,6 @@
 import { useRouter } from "next/navigation";
 import { Game } from "@/db/entity/game/game.entity";
 import { useSocket } from "@/providers/SocketProvider";
-import Box from "@mui/material/Box";
 import { useEffect, useReducer, useRef, useState } from "react";
 import {
   GamePayload,
@@ -13,34 +12,29 @@ import {
   TimerEvent,
   UpdateGameStatePayload,
 } from "../../../../../shared/types/socket-io.types";
-import Button from "@mui/material/Button";
-import { getGameById, newRound, playAgain, startGame } from "@/actions/game";
-import Canvas from "../Canvas/Canvas";
+import { getGameById, newRound } from "@/actions/game";
 import { useUser } from "@/providers/UserProvider";
-import Typography from "@mui/material/Typography";
-import GuessBox from "../GuessBox/GuessBox";
-import GuessList from "../GuessList/GuessList";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import MessageModal from "../MessageModal/MessageModal";
-import { GameActionTypes, gameReducer } from "./gameReducer";
+import { GameActionTypes, gameReducer } from "../GameLayout/gameReducer";
+import GameLayoutMobile from "../GameLayout/GameLayoutMobile";
+import GameLayoutDesktop from "../GameLayout/GameLayoutDesktop";
+import Canvas from "../Canvas/Canvas";
 
 enum NetworkStatus {
   Online = "online",
   Offline = "offline",
 }
 
-interface GameLayoutProps {
+interface GameContainerProps {
   initialGame: Game;
 }
 
-interface PlayerState {
+export interface PlayerState {
   name: string;
   score: number;
   networkStatus: NetworkStatus;
 }
 
-const GameLayout = ({ initialGame }: GameLayoutProps) => {
+const GameContainer = ({ initialGame }: GameContainerProps) => {
   const [players, setPlayers] = useState<PlayerState[]>([]);
   const [showFinishScreen, setShowFinishScreen] = useState(false);
   const [roundCounter, setRoundCounter] = useState<number>();
@@ -66,6 +60,7 @@ const GameLayout = ({ initialGame }: GameLayoutProps) => {
   const isGameFinished =
     gameState.rounds.length >= gameState.players.length * 3;
   const isGameFinishedRef = useRef<boolean>(isGameFinished);
+  const canvasInstance = <Canvas isUserDrawing={isUserDrawing} />;
 
   useEffect(() => {
     setPlayers(getPlayers(initialGame.players, []));
@@ -268,106 +263,30 @@ const GameLayout = ({ initialGame }: GameLayoutProps) => {
 
   return (
     <>
-      <Box
-        display="flex"
-        marginTop="64px"
-        height="calc(100vh - 64px)"
-        overflow="hidden"
-      >
-        <Box
-          width={300}
-          height="100%"
-          padding={3}
-          borderRight="1px solid"
-          borderColor="grey.300"
-        >
-          {gameState.started && (
-            <GuessList guesses={gameState?.currentRound?.guesses || []} />
-          )}
-        </Box>
-        <Box
-          flex={1}
-          display={"flex"}
-          flexDirection={"column"}
-          padding={3}
-          sx={{ backgroundColor: "grey.100" }}
-        >
-          {gameState.word && isUserDrawing && <div>Word: {gameState.word}</div>}
-          {gameState.started && (
-            <Typography variant="h6" component="div">
-              Time left: {roundCounter}, Round:{" "}
-              {`${gameState.rounds.length} / ${gameState.players.length * 3}`}
-            </Typography>
-          )}
-          {gameState.started && <Canvas isUserDrawing={isUserDrawing} />}
-          {gameState.started && !isUserDrawing && (
-            <GuessBox gameState={gameState} />
-          )}
-          {!gameState.started && (
-            <Button
-              variant="contained"
-              onClick={async () => {
-                const game = await startGame(gameState.id);
-                if (socket) {
-                  socket.emit("startGame", {
-                    game,
-                  });
-
-                  socket.emit("startTimer", {
-                    gameId: gameRef.current.id,
-                    duration: 40,
-                    event: TimerEvent.ROUND,
-                    emitter: userContext.state.user.id,
-                  });
-                }
-              }}
-            >
-              Start
-            </Button>
-          )}
-        </Box>
-        <Box
-          width={300}
-          height="100%"
-          padding={3}
-          borderLeft="1px solid"
-          borderColor="grey.300"
-        >
-          <Typography variant="h6" component="div">
-            Players
-          </Typography>
-          <List sx={{ height: "300px", overflowY: "scroll" }}>
-            {players.map((player) => (
-              <ListItem key={player.name} disablePadding>
-                {player.name}: {player.networkStatus}, {player.score}
-              </ListItem>
-            ))}
-          </List>
-        </Box>
-        <MessageModal
-          handleClose={() => {}}
-          variables={{
-            roundCounter,
-            roundPauseCounter,
-          }}
-          actions={
-            showFinishScreen &&
-            isHost && (
-              <Button
-                variant="contained"
-                onClick={async () => {
-                  const newGame = await playAgain(gameRef.current);
-                  socket?.emit("joinGame", { id: newGame.id });
-                  socket?.emit("playAgain", newGame.id);
-                }}
-              >
-                Play Again
-              </Button>
-            )
-          }
-          {...modalProps}
-        />
-      </Box>
+      <GameLayoutDesktop
+        gameState={gameState}
+        players={players}
+        isUserDrawing={isUserDrawing}
+        roundCounter={roundCounter}
+        roundPauseCounter={roundPauseCounter}
+        isHost={isHost}
+        showFinishScreen={showFinishScreen}
+        socket={socket}
+        modalProps={modalProps}
+        canvasInstance={canvasInstance}
+      />
+      <GameLayoutMobile
+        gameState={gameState}
+        players={players}
+        isUserDrawing={isUserDrawing}
+        roundCounter={roundCounter}
+        roundPauseCounter={roundPauseCounter}
+        isHost={isHost}
+        showFinishScreen={showFinishScreen}
+        socket={socket}
+        modalProps={modalProps}
+        canvasInstance={canvasInstance}
+      />
     </>
   );
 };
@@ -397,4 +316,4 @@ function getResultAsString(players: Game["players"]) {
   return resultAsString.join("\n");
 }
 
-export default GameLayout;
+export default GameContainer;

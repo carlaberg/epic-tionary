@@ -2,12 +2,19 @@
 import { useSocket } from "@/providers/SocketProvider";
 import React, { useRef, useState, useEffect } from "react";
 import { Painter } from "./Painter";
+import Box from "@mui/material/Box";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 interface CanvasProps {
   isUserDrawing: boolean;
 }
 
 const Canvas = ({ isUserDrawing }: CanvasProps) => {
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
+  const canvasWidth = isDesktop ? 800 : window.innerWidth;
+
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
@@ -15,6 +22,7 @@ const Canvas = ({ isUserDrawing }: CanvasProps) => {
   const socket = socketContext.state.socket;
 
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
+  const canvasWrapperRef = useRef<HTMLDivElement | null>(null);
   const isDrawingRef = useRef(false);
   const painterRef = useRef<Painter | null>(null);
 
@@ -70,66 +78,77 @@ const Canvas = ({ isUserDrawing }: CanvasProps) => {
     };
   }, [context]);
 
-  const handleStartDrawing = (event: React.MouseEvent) => {
-    painterRef.current?.startDrawing({
-      x: event.nativeEvent.offsetX,
-      y: event.nativeEvent.offsetY,
-    });
+  const handleStartDrawing = (event: React.MouseEvent | React.TouchEvent) => {
+    const { x, y } = getPointerPos(event, canvasRef);
+    painterRef.current?.startDrawing({ x, y });
     setIsDrawing(true);
-    if (socket) {
-      socket.emit("startDrawing", {
-        x: event.nativeEvent.offsetX,
-        y: event.nativeEvent.offsetY,
-      });
-    }
+    socket?.emit("startDrawing", { x, y });
   };
 
-  const handleDraw = (event: React.MouseEvent) => {
+  const handleDraw = (event: React.MouseEvent | React.TouchEvent) => {
     if (!isDrawing || !isUserDrawing) return;
-    painterRef.current?.draw({
-      x: event.nativeEvent.offsetX,
-      y: event.nativeEvent.offsetY,
-    });
 
-    if (socket) {
-      socket.emit("draw", {
-        x: event.nativeEvent.offsetX,
-        y: event.nativeEvent.offsetY,
-      });
-    }
+    const { x, y } = getPointerPos(event, canvasRef);
+    painterRef.current?.draw({ x, y });
+    socket?.emit("draw", { x, y });
   };
 
   const handleStopDrawing = () => {
     painterRef.current?.stopDrawing();
-    if (socket) {
-      socket.emit("stopDrawing");
-    }
+    socket?.emit("stopDrawing");
   };
 
   const handleClearCanvas = () => {
     painterRef.current?.clearCanvas();
-    if (socket) {
-      socket.emit("clearCanvas");
-    }
+    socket?.emit("clearCanvas");
   };
 
   return (
-    <div>
+    <Box width="100%">
       <canvas
         ref={canvasRef}
-        width={800}
+        width={canvasWidth}
         height={200}
-        style={{ border: "1px solid black" }}
+        style={{ background: "white" }}
+        // Mouse events
         onMouseDown={handleStartDrawing}
         onMouseMove={handleDraw}
         onMouseUp={handleStopDrawing}
         onMouseLeave={handleStopDrawing}
+        // Touch events
+        onTouchStart={handleStartDrawing}
+        onTouchMove={handleDraw}
+        onTouchEnd={handleStopDrawing}
+        onTouchCancel={handleStopDrawing}
       />
       {isUserDrawing && (
         <button onClick={handleClearCanvas}>Clear Canvas</button>
       )}
-    </div>
+    </Box>
   );
 };
 
 export default Canvas;
+
+const getPointerPos = (
+  event: React.MouseEvent | React.TouchEvent,
+  canvasRef: React.RefObject<HTMLCanvasElement>
+): { x: number; y: number } => {
+  const offsetX =
+    "nativeEvent" in event
+      ? event.nativeEvent instanceof MouseEvent
+        ? event.nativeEvent.offsetX
+        : event.nativeEvent.touches[0].clientX -
+          (canvasRef.current?.getBoundingClientRect().left || 0)
+      : 0;
+
+  const offsetY =
+    "nativeEvent" in event
+      ? event.nativeEvent instanceof MouseEvent
+        ? event.nativeEvent.offsetY
+        : event.nativeEvent.touches[0].clientY -
+          (canvasRef.current?.getBoundingClientRect().top || 0)
+      : 0;
+
+  return { x: offsetX, y: offsetY };
+};

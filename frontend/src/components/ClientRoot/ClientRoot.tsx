@@ -11,7 +11,7 @@ type ClientRootProps = {
 const ClientRoot = ({ children, initialUser }: ClientRootProps) => {
   return (
     <UserProvider initialUser={initialUser}>
-      <SocketProvider>{children}</SocketProvider>;
+      <SocketProvider>{children}</SocketProvider>
     </UserProvider>
   );
 };

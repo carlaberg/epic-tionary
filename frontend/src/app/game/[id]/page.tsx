@@ -1,7 +1,7 @@
 import { addPlayer, getGameById } from "@/actions/game";
 import { getCurrentUser } from "@/actions/user";
 import ClientRoot from "@/components/ClientRoot/ClientRoot";
-import GameLayout from "@/components/game/GameLayout/GameLayout";
+import GameContainer from "@/components/game/GameContainer/GameContainer";
 
 const GamePage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const id = (await params).id;
@@ -11,7 +11,7 @@ const GamePage = async ({ params }: { params: Promise<{ id: string }> }) => {
 
   return (
     <ClientRoot initialUser={loggedInUser}>
-      <GameLayout initialGame={game} />
+      <GameContainer initialGame={game} />
     </ClientRoot>
   );
 };
