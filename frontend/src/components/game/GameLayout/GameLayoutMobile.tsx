@@ -16,7 +16,7 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import MessageModal from "../MessageModal/MessageModal";
 import { Socket } from "socket.io-client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 enum NetworkStatus {
   Online = "online",
@@ -60,27 +60,15 @@ const GameLayoutMobile = ({
 }: GameLayoutMobileProps) => {
   const userContext = useUser();
 
-  const [viewportHeight, setViewportHeight] = useState(
-    window.visualViewport?.height || window.innerHeight
-  );
-
   useEffect(() => {
-    const handleResize = () => {
-      setViewportHeight(window.visualViewport?.height || window.innerHeight);
-    };
-
-    window.visualViewport?.addEventListener("resize", handleResize);
-
-    return () => {
-      window.visualViewport?.removeEventListener("resize", handleResize);
-    };
+    document.body.style.overflow = "hidden";
   }, []);
 
   return (
     <Box
       display={{ xs: "flex", md: "none" }}
       marginTop="56px"
-      height={`calc(${viewportHeight} - 56px)`}
+      height="calc(100vh - 56px)"
       overflow="hidden"
       flexDirection="column"
     >
