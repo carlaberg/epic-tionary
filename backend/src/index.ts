@@ -96,6 +96,10 @@ io.on("connection", (socket) => {
     io.to(payload.gameId).emit("allGuessedCorrect", payload);
   });
 
+  socket.on("newRound", (payload) => {
+    io.to(payload.game.id).emit("newRound", payload);
+  });
+
   socket.on("roundTimeIsUp", (payload) => {
     io.to(payload.gameId).emit("roundTimeIsUp", payload);
   });

@@ -69,11 +69,17 @@ const Canvas = ({ isUserDrawing }: CanvasProps) => {
       painterRef.current?.clearCanvas();
     });
 
+    socket.on("newRound", () => {
+      painterRef.current?.clearCanvas();
+    });
+
     return () => {
+      // TODO: Clean up socket listeners properly
       socket.off("startDrawing");
       socket.off("draw");
       socket.off("stopDrawing");
       socket.off("clearCanvas");
+      socket.off("newRound");
       socket.disconnect();
     };
   }, [context]);

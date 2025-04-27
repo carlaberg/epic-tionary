@@ -175,6 +175,8 @@ const GameContainer = ({ initialGame }: GameContainerProps) => {
         },
       });
 
+      socket?.emit("newRound", { game });
+
       socket?.emit("startTimer", {
         gameId: game.id,
         duration: 40,

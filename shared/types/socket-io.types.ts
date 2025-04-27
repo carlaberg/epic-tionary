@@ -40,8 +40,7 @@ export type RoundTimeIsUpPayload = {
 };
 
 export type NewRoundPayload = {
-  gameId: string;
-  emitter: string;
+  game: any;
 };
 
 export type StartGamePayLoad = {
