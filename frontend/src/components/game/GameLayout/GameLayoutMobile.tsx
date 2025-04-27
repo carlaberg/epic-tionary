@@ -100,7 +100,7 @@ const GameLayoutMobile = ({
         {gameState.started && !isUserDrawing && (
           <GuessBox gameState={gameState} />
         )}
-        {!gameState.started && (
+        {!gameState.started && isHost && (
           <Button
             variant="contained"
             onClick={async () => {
