@@ -63,7 +63,9 @@ const GameLayoutMobile = ({
     <Box
       display={{ xs: "flex", md: "none" }}
       marginTop="56px"
-      height="calc(100vh - 56px)"
+      height={`calc(${
+        window.visualViewport?.height || window.innerHeight
+      } - 56px)`}
       overflow="hidden"
       flexDirection="column"
     >
