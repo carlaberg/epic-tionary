@@ -85,6 +85,7 @@ const Canvas = ({ isUserDrawing }: CanvasProps) => {
   }, [context]);
 
   const handleStartDrawing = (event: React.MouseEvent | React.TouchEvent) => {
+    event.preventDefault();
     const { x, y } = getPointerPos(event, canvasRef);
     painterRef.current?.startDrawing({ x, y });
     setIsDrawing(true);
@@ -94,12 +95,14 @@ const Canvas = ({ isUserDrawing }: CanvasProps) => {
   const handleDraw = (event: React.MouseEvent | React.TouchEvent) => {
     if (!isDrawing || !isUserDrawing) return;
 
+    event.preventDefault();
     const { x, y } = getPointerPos(event, canvasRef);
     painterRef.current?.draw({ x, y });
     socket?.emit("draw", { x, y });
   };
 
   const handleStopDrawing = () => {
+    if (!isDrawing) return;
     painterRef.current?.stopDrawing();
     socket?.emit("stopDrawing");
   };
