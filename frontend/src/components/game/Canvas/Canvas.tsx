@@ -5,12 +5,14 @@ import { Painter } from "./Painter";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { Game } from "@/db/entity/game/game.entity";
 
 interface CanvasProps {
   isUserDrawing: boolean;
+  game: Game;
 }
 
-const Canvas = ({ isUserDrawing }: CanvasProps) => {
+const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const canvasWidth = isDesktop ? 800 : window.innerWidth;
@@ -22,7 +24,6 @@ const Canvas = ({ isUserDrawing }: CanvasProps) => {
   const socket = socketContext.state.socket;
 
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
-  const canvasWrapperRef = useRef<HTMLDivElement | null>(null);
   const isDrawingRef = useRef(false);
   const painterRef = useRef<Painter | null>(null);
 
@@ -44,42 +45,48 @@ const Canvas = ({ isUserDrawing }: CanvasProps) => {
     isDrawingRef.current = isDrawing;
   }, [isDrawing]);
 
+  function onStartDrawing(drawMeta: { x: number; y: number }) {
+    if (!contextRef.current) return;
+    painterRef.current?.startDrawing(drawMeta);
+    setIsDrawing(true);
+  }
+
+  function onDraw(drawMeta: { x: number; y: number }) {
+    if (!contextRef.current || !isDrawingRef.current) return;
+    painterRef.current?.draw(drawMeta);
+  }
+
+  function onStopDrawing() {
+    if (!contextRef.current) return;
+    painterRef.current?.stopDrawing();
+    setIsDrawing(false);
+  }
+
+  function onClearCanvas() {
+    painterRef.current?.clearCanvas();
+  }
+
+  function onNewRound() {
+    painterRef.current?.clearCanvas();
+  }
+
   useEffect(() => {
     if (!socket) return;
     socket.connect();
 
-    socket.on("startDrawing", (drawMeta: { x: number; y: number }) => {
-      if (!contextRef.current) return;
-      painterRef.current?.startDrawing(drawMeta);
-      setIsDrawing(true);
-    });
-
-    socket.on("draw", (drawMeta: { x: number; y: number }) => {
-      if (!contextRef.current || !isDrawingRef.current) return;
-      painterRef.current?.draw(drawMeta);
-    });
-
-    socket.on("stopDrawing", () => {
-      if (!contextRef.current) return;
-      painterRef.current?.stopDrawing();
-      setIsDrawing(false);
-    });
-
-    socket.on("clearCanvas", () => {
-      painterRef.current?.clearCanvas();
-    });
-
-    socket.on("newRound", () => {
-      painterRef.current?.clearCanvas();
-    });
+    socket.on("startDrawing", onStartDrawing);
+    socket.on("draw", onDraw);
+    socket.on("stopDrawing", onStopDrawing);
+    socket.on("clearCanvas", onClearCanvas);
+    socket.on("newRound", onNewRound);
 
     return () => {
-      // TODO: Clean up socket listeners properly
-      socket.off("startDrawing");
-      socket.off("draw");
-      socket.off("stopDrawing");
-      socket.off("clearCanvas");
-      socket.off("newRound");
+      socket.off("startDrawing", onStartDrawing);
+      socket.off("draw", onDraw);
+      socket.off("stopDrawing", onStopDrawing);
+      socket.off("clearCanvas", onClearCanvas);
+      socket.off("newRound", onNewRound);
+
       socket.disconnect();
     };
   }, [context]);
@@ -89,7 +96,7 @@ const Canvas = ({ isUserDrawing }: CanvasProps) => {
     const { x, y } = getPointerPos(event, canvasRef);
     painterRef.current?.startDrawing({ x, y });
     setIsDrawing(true);
-    socket?.emit("startDrawing", { x, y });
+    socket?.emit("startDrawing", { gameId: game.id, x, y });
   };
 
   const handleDraw = (event: React.MouseEvent | React.TouchEvent) => {
@@ -98,18 +105,19 @@ const Canvas = ({ isUserDrawing }: CanvasProps) => {
     event.preventDefault();
     const { x, y } = getPointerPos(event, canvasRef);
     painterRef.current?.draw({ x, y });
-    socket?.emit("draw", { x, y });
+    socket?.emit("draw", { gameId: game.id, x, y });
   };
 
   const handleStopDrawing = () => {
     if (!isDrawing) return;
     painterRef.current?.stopDrawing();
-    socket?.emit("stopDrawing");
+    setIsDrawing(false);
+    socket?.emit("stopDrawing", game.id);
   };
 
   const handleClearCanvas = () => {
     painterRef.current?.clearCanvas();
-    socket?.emit("clearCanvas");
+    socket?.emit("clearCanvas", game.id);
   };
 
   return (

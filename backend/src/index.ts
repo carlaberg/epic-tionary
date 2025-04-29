@@ -72,20 +72,20 @@ io.on("connection", (socket) => {
     }, 1000);
   });
 
-  socket.on("startDrawing", (drawMeta) => {
-    io.emit("startDrawing", drawMeta);
+  socket.on("startDrawing", (payload) => {
+    socket.broadcast.to(payload.gameId).emit("startDrawing", payload);
   });
 
-  socket.on("draw", (drawMeta) => {
-    io.emit("draw", drawMeta);
+  socket.on("draw", (payload) => {
+    socket.broadcast.to(payload.gameId).emit("draw", payload);
   });
 
-  socket.on("stopDrawing", () => {
-    io.emit("stopDrawing");
+  socket.on("stopDrawing", (gameId) => {
+    socket.broadcast.to(gameId).emit("stopDrawing");
   });
 
-  socket.on("clearCanvas", () => {
-    io.emit("clearCanvas");
+  socket.on("clearCanvas", (gameId) => {
+    socket.broadcast.to(gameId).emit("clearCanvas");
   });
 
   socket.on("allGuessedCorrect", (payload) => {

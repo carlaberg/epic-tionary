@@ -60,7 +60,9 @@ const GameContainer = ({ initialGame }: GameContainerProps) => {
   const isGameFinished =
     gameState.rounds.length >= gameState.players.length * 3;
   const isGameFinishedRef = useRef<boolean>(isGameFinished);
-  const canvasInstance = <Canvas isUserDrawing={isUserDrawing} />;
+  const canvasInstance = (
+    <Canvas isUserDrawing={isUserDrawing} game={gameState} />
+  );
 
   useEffect(() => {
     setPlayers(getPlayers(initialGame.players, []));

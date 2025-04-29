@@ -62,10 +62,16 @@ export type UpdateGameStatePayload = {
   gameId: string;
   action: any; // TODO: Replace with actual type
 };
+
+export type DrawPayload = {
+  gameId: string;
+  x: number;
+  y: number;
+};
 export interface ServerToClientEvents {
   joinExistingUserRoomsOnStartup: (roomIds: string[]) => void;
-  startDrawing: (drawMeta: { x: number; y: number }) => void;
-  draw: (drawMeta: { x: number; y: number }) => void;
+  startDrawing: (payload: DrawPayload) => void;
+  draw: (payload: DrawPayload) => void;
   stopDrawing: () => void;
   clearCanvas: () => void;
   joinGame: (game: GamePayload) => void;
@@ -85,10 +91,10 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   joinExistingUserRoomsOnStartup: (roomIds: string[]) => void;
-  startDrawing: (drawMeta: { x: number; y: number }) => void;
-  draw: (drawMeta: { x: number; y: number }) => void;
-  stopDrawing: () => void;
-  clearCanvas: () => void;
+  startDrawing: (payload: DrawPayload) => void;
+  draw: (payload: DrawPayload) => void;
+  stopDrawing: (gameId: string) => void;
+  clearCanvas: (gameId: string) => void;
   joinGame: (game: GamePayload) => void;
   startGame: (payload: StartGamePayLoad) => void;
   userOffline: (payload: UserOfflinePayload) => void;
