@@ -6,10 +6,16 @@ import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { Game } from "@/db/entity/game/game.entity";
+import { DrawPayload } from "../../../../../shared/types/socket-io.types";
 
 interface CanvasProps {
   isUserDrawing: boolean;
   game: Game;
+}
+
+interface DrawMeta {
+  x: number;
+  y: number;
 }
 
 const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
@@ -25,6 +31,7 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
 
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const isDrawingRef = useRef(false);
+  const isUserDrawingRef = useRef(isUserDrawing);
   const painterRef = useRef<Painter | null>(null);
 
   useEffect(() => {
@@ -45,28 +52,42 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
     isDrawingRef.current = isDrawing;
   }, [isDrawing]);
 
-  function onStartDrawing(drawMeta: { x: number; y: number }) {
+  // Drawing methods
+  function startDrawing(drawMeta: DrawMeta) {
     if (!contextRef.current) return;
     painterRef.current?.startDrawing(drawMeta);
     setIsDrawing(true);
   }
 
-  function onDraw(drawMeta: { x: number; y: number }) {
+  function draw(drawMeta: DrawMeta) {
     if (!contextRef.current || !isDrawingRef.current) return;
     painterRef.current?.draw(drawMeta);
   }
 
-  function onStopDrawing() {
-    if (!contextRef.current) return;
+  function stopDrawing() {
+    if (!contextRef.current || !isDrawingRef.current) return;
     painterRef.current?.stopDrawing();
     setIsDrawing(false);
   }
 
-  function onClearCanvas() {
+  // Socket.io event handlers
+  function startDrawingSocketEventHandler(payload: DrawPayload) {
+    startDrawing(payload);
+  }
+
+  function drawSocketEventHandler(payload: DrawPayload) {
+    draw(payload);
+  }
+
+  function stopDrawingSocketEventHandler() {
+    stopDrawing();
+  }
+
+  function clearCanvasSocketEventHandler() {
     painterRef.current?.clearCanvas();
   }
 
-  function onNewRound() {
+  function newRoundSocketEventHandler() {
     painterRef.current?.clearCanvas();
   }
 
@@ -74,44 +95,43 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
     if (!socket) return;
     socket.connect();
 
-    socket.on("startDrawing", onStartDrawing);
-    socket.on("draw", onDraw);
-    socket.on("stopDrawing", onStopDrawing);
-    socket.on("clearCanvas", onClearCanvas);
-    socket.on("newRound", onNewRound);
+    socket.on("startDrawing", startDrawingSocketEventHandler);
+    socket.on("draw", drawSocketEventHandler);
+    socket.on("stopDrawing", stopDrawingSocketEventHandler);
+    socket.on("clearCanvas", clearCanvasSocketEventHandler);
+    socket.on("newRound", newRoundSocketEventHandler);
 
     return () => {
-      socket.off("startDrawing", onStartDrawing);
-      socket.off("draw", onDraw);
-      socket.off("stopDrawing", onStopDrawing);
-      socket.off("clearCanvas", onClearCanvas);
-      socket.off("newRound", onNewRound);
+      socket.off("startDrawing", startDrawingSocketEventHandler);
+      socket.off("draw", drawSocketEventHandler);
+      socket.off("stopDrawing", stopDrawingSocketEventHandler);
+      socket.off("clearCanvas", clearCanvasSocketEventHandler);
+      socket.off("newRound", newRoundSocketEventHandler);
 
       socket.disconnect();
     };
   }, [context]);
 
-  const handleStartDrawing = (event: React.MouseEvent | React.TouchEvent) => {
+  // Touch event handlers
+  const handleTouchStartDrawing = (event: TouchEvent) => {
     event.preventDefault();
-    const { x, y } = getPointerPos(event, canvasRef);
-    painterRef.current?.startDrawing({ x, y });
-    setIsDrawing(true);
+
+    const { x, y } = getPointerPosFromTouch(event, canvasRef);
+    console.log("Touch start", { x, y });
+    startDrawing({ x, y });
     socket?.emit("startDrawing", { gameId: game.id, x, y });
   };
 
-  const handleDraw = (event: React.MouseEvent | React.TouchEvent) => {
-    if (!isDrawing || !isUserDrawing) return;
-
+  const handleTouchDraw = (event: TouchEvent) => {
     event.preventDefault();
-    const { x, y } = getPointerPos(event, canvasRef);
-    painterRef.current?.draw({ x, y });
+    const { x, y } = getPointerPosFromTouch(event, canvasRef);
+    console.log("Touch move", { x, y });
+    draw({ x, y });
     socket?.emit("draw", { gameId: game.id, x, y });
   };
 
-  const handleStopDrawing = () => {
-    if (!isDrawing) return;
-    painterRef.current?.stopDrawing();
-    setIsDrawing(false);
+  const handleTouchStopDrawing = () => {
+    stopDrawing();
     socket?.emit("stopDrawing", game.id);
   };
 
@@ -119,6 +139,32 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
     painterRef.current?.clearCanvas();
     socket?.emit("clearCanvas", game.id);
   };
+
+  useEffect(() => {
+    // Prevent swipe-down refresh on iOS
+    // Need to pass passive: false to preventDefault
+    const canvas = canvasRef.current;
+
+    if (!canvas) return;
+
+    canvas.addEventListener("touchstart", handleTouchStartDrawing, {
+      passive: false,
+    });
+    canvas.addEventListener("touchmove", handleTouchDraw, { passive: false });
+    canvas.addEventListener("touchend", handleTouchStopDrawing, {
+      passive: false,
+    });
+    canvas.addEventListener("touchcancel", handleTouchStopDrawing, {
+      passive: false,
+    });
+
+    return () => {
+      canvas.removeEventListener("touchstart", handleTouchStartDrawing);
+      canvas.removeEventListener("touchmove", handleTouchDraw);
+      canvas.removeEventListener("touchend", handleTouchStopDrawing);
+      canvas.removeEventListener("touchcancel", handleTouchStopDrawing);
+    };
+  }, [canvasRef]);
 
   return (
     <Box width="100%">
@@ -128,15 +174,24 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
         height={200}
         style={{ background: "white" }}
         // Mouse events
-        onMouseDown={handleStartDrawing}
-        onMouseMove={handleDraw}
-        onMouseUp={handleStopDrawing}
-        onMouseLeave={handleStopDrawing}
-        // Touch events
-        onTouchStart={handleStartDrawing}
-        onTouchMove={handleDraw}
-        onTouchEnd={handleStopDrawing}
-        onTouchCancel={handleStopDrawing}
+        onMouseDown={(event) => {
+          const { x, y } = getPointerPosFromMouse(event, canvasRef);
+          startDrawing({ x, y });
+          socket?.emit("startDrawing", { gameId: game.id, x, y });
+        }}
+        onMouseMove={(event) => {
+          const { x, y } = getPointerPosFromMouse(event, canvasRef);
+          draw({ x, y });
+          socket?.emit("draw", { gameId: game.id, x, y });
+        }}
+        onMouseUp={() => {
+          stopDrawing();
+          socket?.emit("stopDrawing", game.id);
+        }}
+        onMouseLeave={() => {
+          stopDrawing();
+          socket?.emit("stopDrawing", game.id);
+        }}
       />
       {isUserDrawing && (
         <button onClick={handleClearCanvas}>Clear Canvas</button>
@@ -147,25 +202,24 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
 
 export default Canvas;
 
-const getPointerPos = (
-  event: React.MouseEvent | React.TouchEvent,
+const getPointerPosFromMouse = (
+  event: React.MouseEvent<HTMLCanvasElement>,
   canvasRef: React.RefObject<HTMLCanvasElement>
 ): { x: number; y: number } => {
-  const offsetX =
-    "nativeEvent" in event
-      ? event.nativeEvent instanceof MouseEvent
-        ? event.nativeEvent.offsetX
-        : event.nativeEvent.touches[0].clientX -
-          (canvasRef.current?.getBoundingClientRect().left || 0)
-      : 0;
+  const canvasRect = canvasRef.current?.getBoundingClientRect();
+  return {
+    x: event.clientX - (canvasRect?.left || 0),
+    y: event.clientY - (canvasRect?.top || 0),
+  };
+};
 
-  const offsetY =
-    "nativeEvent" in event
-      ? event.nativeEvent instanceof MouseEvent
-        ? event.nativeEvent.offsetY
-        : event.nativeEvent.touches[0].clientY -
-          (canvasRef.current?.getBoundingClientRect().top || 0)
-      : 0;
-
-  return { x: offsetX, y: offsetY };
+const getPointerPosFromTouch = (
+  event: TouchEvent,
+  canvasRef: React.RefObject<HTMLCanvasElement>
+): { x: number; y: number } => {
+  const canvasRect = canvasRef.current?.getBoundingClientRect();
+  return {
+    x: event.touches[0].clientX - (canvasRect?.left || 0),
+    y: event.touches[0].clientY - (canvasRect?.top || 0),
+  };
 };
