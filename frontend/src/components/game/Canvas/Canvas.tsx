@@ -1,6 +1,6 @@
 "use client";
 import { useSocket } from "@/providers/SocketProvider";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, use } from "react";
 import { Painter } from "./Painter";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
@@ -51,6 +51,10 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
   useEffect(() => {
     isDrawingRef.current = isDrawing;
   }, [isDrawing]);
+
+  useEffect(() => {
+    isUserDrawingRef.current = isUserDrawing;
+  }, [isUserDrawing]);
 
   // Drawing methods
   function startDrawing(drawMeta: DrawMeta) {
@@ -114,6 +118,7 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
 
   // Touch event handlers
   const handleTouchStartDrawing = (event: TouchEvent) => {
+    if (!isUserDrawingRef.current) return;
     event.preventDefault();
 
     const { x, y } = getPointerPosFromTouch(event, canvasRef);
@@ -123,6 +128,7 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
   };
 
   const handleTouchDraw = (event: TouchEvent) => {
+    if (!isUserDrawingRef.current) return;
     event.preventDefault();
     const { x, y } = getPointerPosFromTouch(event, canvasRef);
     console.log("Touch move", { x, y });
@@ -175,11 +181,13 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
         style={{ background: "white" }}
         // Mouse events
         onMouseDown={(event) => {
+          if (!isUserDrawingRef.current) return;
           const { x, y } = getPointerPosFromMouse(event, canvasRef);
           startDrawing({ x, y });
           socket?.emit("startDrawing", { gameId: game.id, x, y });
         }}
         onMouseMove={(event) => {
+          if (!isUserDrawingRef.current) return;
           const { x, y } = getPointerPosFromMouse(event, canvasRef);
           draw({ x, y });
           socket?.emit("draw", { gameId: game.id, x, y });
