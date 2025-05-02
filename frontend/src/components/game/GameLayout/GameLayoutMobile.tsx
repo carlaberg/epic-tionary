@@ -16,7 +16,6 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import MessageModal from "../MessageModal/MessageModal";
 import { Socket } from "socket.io-client";
-import { useEffect } from "react";
 
 enum NetworkStatus {
   Online = "online",
@@ -64,12 +63,12 @@ const GameLayoutMobile = ({
     <Box
       display={{ xs: "flex", md: "none" }}
       marginTop="56px"
-      height="calc(100vh - 56px)"
+      height={`${window.innerHeight - 56}px`}
       flexDirection="column"
+      overflow="hidden"
     >
       <Box
         width={300}
-        height="100%"
         padding={3}
         borderRight="1px solid"
         borderColor="grey.300"
@@ -80,7 +79,6 @@ const GameLayoutMobile = ({
         )}
       </Box>
       <Box
-        flex={1}
         display={"flex"}
         flexDirection={"column"}
         padding={3}
@@ -123,7 +121,6 @@ const GameLayoutMobile = ({
       </Box>
       <Box
         width={300}
-        height="100%"
         padding={3}
         borderLeft="1px solid"
         borderColor="grey.300"

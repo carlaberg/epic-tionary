@@ -124,6 +124,10 @@ const GuessBox = ({ gameState }: GuessBoxProps) => {
     }
   };
 
+  const handleBlur = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <Box>
       <form onSubmit={handleSubmit}>
@@ -131,6 +135,7 @@ const GuessBox = ({ gameState }: GuessBoxProps) => {
           type="text"
           value={guess}
           onChange={(e) => setGuess(e.target.value)}
+          onBlur={handleBlur}
         />
         <Button variant="contained" type="submit">
           Guess
