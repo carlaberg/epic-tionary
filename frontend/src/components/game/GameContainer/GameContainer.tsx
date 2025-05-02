@@ -65,6 +65,19 @@ const GameContainer = ({ initialGame }: GameContainerProps) => {
   );
 
   useEffect(() => {
+    const preventDefault = (e: TouchEvent) => {
+      e.preventDefault();
+    };
+
+    // Disable swipe-to-refresh
+    document.addEventListener("touchmove", preventDefault, { passive: false });
+
+    return () => {
+      document.removeEventListener("touchmove", preventDefault);
+    };
+  }, []);
+
+  useEffect(() => {
     setPlayers(getPlayers(initialGame.players, []));
     updateGameState({
       type: GameActionTypes.SET_STATE,
