@@ -1,6 +1,6 @@
 "use client";
 import { useSocket } from "@/providers/SocketProvider";
-import React, { useRef, useState, useEffect, use } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { Painter } from "./Painter";
 import Box from "@mui/material/Box";
 import { useTheme } from "@mui/material/styles";
@@ -122,7 +122,6 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
     event.preventDefault();
 
     const { x, y } = getPointerPosFromTouch(event, canvasRef);
-    console.log("Touch start", { x, y });
     startDrawing({ x, y });
     socket?.emit("startDrawing", { gameId: game.id, x, y });
   };
@@ -131,7 +130,6 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
     if (!isUserDrawingRef.current) return;
     event.preventDefault();
     const { x, y } = getPointerPosFromTouch(event, canvasRef);
-    console.log("Touch move", { x, y });
     draw({ x, y });
     socket?.emit("draw", { gameId: game.id, x, y });
   };

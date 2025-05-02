@@ -60,16 +60,11 @@ const GameLayoutMobile = ({
 }: GameLayoutMobileProps) => {
   const userContext = useUser();
 
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-  }, []);
-
   return (
     <Box
       display={{ xs: "flex", md: "none" }}
       marginTop="56px"
       height="calc(100vh - 56px)"
-      overflow="hidden"
       flexDirection="column"
     >
       <Box

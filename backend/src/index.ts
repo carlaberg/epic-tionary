@@ -20,7 +20,7 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(server, {
       "https://epic-tionary-production.up.railway.app",
       "https://epictionary.carlaberg.se",
       "http://localhost:3000",
-      "http://192.168.1.78:3000",
+      "http://192.168.1.59:3000",
       "http://192.168.1.134:3000",
     ],
   },
