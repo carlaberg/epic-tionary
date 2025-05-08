@@ -9,6 +9,9 @@ import MessageModal from "../MessageModal/MessageModal";
 import { updateRound } from "@/actions/round";
 import { updatePlayer } from "@/actions/player";
 import { GameActionTypes } from "../GameLayout/gameReducer";
+import { IconButton } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import InputAdornment from "@mui/material/InputAdornment";
 
 type GuessBoxProps = {
   gameState: Game;
@@ -136,10 +139,21 @@ const GuessBox = ({ gameState }: GuessBoxProps) => {
           value={guess}
           onChange={(e) => setGuess(e.target.value)}
           onBlur={handleBlur}
-        />
-        <Button variant="contained" type="submit">
-          Guess
-        </Button>
+          // size="small"
+          fullWidth
+          sx={{
+            "& .MuiInputBase-root": {
+              paddingLeft: 1,
+            },
+          }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <EditIcon fontSize="small" />
+              </InputAdornment>
+            ),
+          }}
+        ></TextField>
       </form>
       <MessageModal
         handleClose={() =>
@@ -147,7 +161,6 @@ const GuessBox = ({ gameState }: GuessBoxProps) => {
         }
         {...modalProps}
       />
-      {/*Add Play Again button in modal that will create a new game with the same players */}
     </Box>
   );
 };

@@ -10,17 +10,14 @@ import Button from "@mui/material/Button";
 import { playAgain, startGame } from "@/actions/game";
 import { useUser } from "@/providers/UserProvider";
 import Typography from "@mui/material/Typography";
-import GuessBox from "../GuessBox/GuessBox";
 import GuessList from "../GuessList/GuessList";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
 import MessageModal from "../MessageModal/MessageModal";
 import { Socket } from "socket.io-client";
-
-enum NetworkStatus {
-  Online = "online",
-  Offline = "offline",
-}
+import PlayerList from "../PlayerList/PlayerList";
+import { PlayerState } from "../GameContainer/GameContainer";
+import Grid from "@mui/material/Grid";
+import Chip from "@mui/material/Chip";
+import GuessBox from "../GuessBox/GuessBox";
 
 interface GameLayoutMobileProps {
   gameState: Game;
@@ -37,12 +34,6 @@ interface GameLayoutMobileProps {
     message: string;
   };
   canvasInstance: JSX.Element;
-}
-
-interface PlayerState {
-  name: string;
-  score: number;
-  networkStatus: NetworkStatus;
 }
 
 const GameLayoutMobile = ({
@@ -66,78 +57,91 @@ const GameLayoutMobile = ({
       height={`${window.innerHeight - 56}px`}
       flexDirection="column"
       overflow="hidden"
+      padding={{ xs: 2, md: 3 }}
+      paddingBottom={{ xs: 0, md: 3 }}
+      sx={{ backgroundColor: "grey.100" }}
     >
-      <Box
-        width={300}
-        padding={3}
-        borderRight="1px solid"
-        borderColor="grey.300"
-        order={{ xs: 2, md: 1 }}
-      >
-        {gameState.started && (
-          <GuessList guesses={gameState?.currentRound?.guesses || []} />
-        )}
-      </Box>
-      <Box
-        display={"flex"}
-        flexDirection={"column"}
-        padding={3}
-        sx={{ backgroundColor: "grey.100" }}
-        order={{ xs: 1, md: 2 }}
-      >
-        {gameState.word && isUserDrawing && <div>Word: {gameState.word}</div>}
-        {gameState.started && (
-          <Typography variant="h6" component="div">
-            Time left: {roundCounter}, Round:{" "}
-            {`${gameState.rounds.length} / ${gameState.players.length * 3}`}
-          </Typography>
-        )}
-        {gameState.started && <Box marginLeft="-24px">{canvasInstance}</Box>}
-        {gameState.started && !isUserDrawing && (
-          <GuessBox gameState={gameState} />
-        )}
-        {!gameState.started && isHost && (
-          <Button
-            variant="contained"
-            onClick={async () => {
-              const game = await startGame(gameState.id);
-              if (socket) {
-                socket.emit("startGame", {
-                  game,
-                });
-
-                socket.emit("startTimer", {
-                  gameId: gameState.id,
-                  duration: 40,
-                  event: TimerEvent.ROUND,
-                  emitter: userContext.state.user.id,
-                });
-              }
-            }}
+      {!gameState.started && (
+        <Box>
+          <Typography
+            textAlign="center"
+            variant="h6"
+            component="div"
+            marginBottom={4}
+            marginTop={2}
           >
-            Start
-          </Button>
+            {isHost
+              ? "Start the game when all players are ready"
+              : "Waiting for host to start the game..."}
+          </Typography>
+          <Box marginBottom={4}>
+            <PlayerList players={players} />
+          </Box>
+        </Box>
+      )}
+      {!gameState.started && isHost && (
+        <Button
+          variant="contained"
+          size="large"
+          onClick={async () => {
+            const game = await startGame(gameState.id);
+            if (socket) {
+              socket.emit("startGame", {
+                game,
+              });
+
+              socket.emit("startTimer", {
+                gameId: gameState.id,
+                duration: 40,
+                event: TimerEvent.ROUND,
+                emitter: userContext.state.user.id,
+              });
+            }
+          }}
+        >
+          Start
+        </Button>
+      )}
+
+      {gameState.started && (
+        <Box order={{ xs: 2, md: 1 }} sx={{ flexGrow: 1, paddingTop: 1 }}>
+          <Grid container spacing={2} height="100%">
+            <Grid item xs={6}>
+              <PlayerList players={players} />
+            </Grid>
+            <Grid item xs={6}>
+              <GuessList guesses={gameState?.currentRound?.guesses || []} />
+            </Grid>
+          </Grid>
+        </Box>
+      )}
+
+      <Box display={"flex"} flexDirection={"column"} order={{ xs: 1, md: 2 }}>
+        {gameState.word && isUserDrawing && (
+          <Chip label={`Word: ${gameState.word}`} sx={{ marginBottom: 2 }} />
         )}
+        {gameState.started && (
+          <Box display={"flex"} justifyContent={"space-between"}>
+            <Typography variant="caption" component="div">
+              Time left: {roundCounter}
+            </Typography>
+            <Typography variant="caption" component="div">
+              Round:{" "}
+              {`${gameState.rounds.length} / ${gameState.players.length * 3}`}
+            </Typography>
+          </Box>
+        )}
+        {gameState.started && <Box marginLeft={-2}>{canvasInstance}</Box>}
       </Box>
-      <Box
-        width={300}
-        padding={3}
-        borderLeft="1px solid"
-        borderColor="grey.300"
-        display={{ xs: "none", md: "block" }}
-        order={3}
-      >
-        <Typography variant="h6" component="div">
-          Players
-        </Typography>
-        <List sx={{ height: "300px", overflowY: "scroll" }}>
-          {players.map((player) => (
-            <ListItem key={player.name} disablePadding>
-              {player.name}: {player.networkStatus}, {player.score}
-            </ListItem>
-          ))}
-        </List>
-      </Box>
+      {gameState.started && !isUserDrawing && (
+        <Box
+          order={{ xs: 3, md: 3 }}
+          sx={{ backgroundColor: "white", marginX: -2, padding: 2 }}
+        >
+          <GuessBox gameState={gameState} />
+        </Box>
+      )}
+
       <MessageModal
         handleClose={() => {}}
         variables={{

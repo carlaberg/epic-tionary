@@ -1,28 +1,34 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { useRef } from "react";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem/ListItem";
+import Paper from "@mui/material/Paper";
 
 type GuessListProps = {
   guesses: string[];
 };
 
 const GuessList = ({ guesses }: GuessListProps) => {
-  const listRef = useRef<HTMLUListElement>(null);
-
   return (
-    <Box>
-      <Typography variant="h6" component="div">
+    <Box height="100%" display="flex" flexDirection="column">
+      <Typography variant="caption" component="div">
         Guesses
       </Typography>
-      <List ref={listRef} sx={{ height: "300px", overflowY: "scroll" }}>
+      <Paper
+        sx={{
+          height: "200px",
+          overflowY: "scroll",
+          padding: 1,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "flex-end",
+          flexGrow: 1,
+        }}
+      >
         {guesses.map((guess, index) => (
-          <ListItem key={guess + index} disablePadding>
+          <Typography variant="caption" component="div" key={guess + index}>
             {guess}
-          </ListItem>
+          </Typography>
         ))}
-      </List>
+      </Paper>
     </Box>
   );
 };

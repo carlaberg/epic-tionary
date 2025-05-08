@@ -7,6 +7,9 @@ import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { Game } from "@/db/entity/game/game.entity";
 import { DrawPayload } from "../../../../../shared/types/socket-io.types";
+import IconButton from "@mui/material/IconButton";
+import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import Button from "@mui/material/Button";
 
 interface CanvasProps {
   isUserDrawing: boolean;
@@ -22,6 +25,7 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const canvasWidth = isDesktop ? 800 : window.innerWidth;
+  const canvasHeight = canvasWidth * (3 / 4);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
@@ -171,11 +175,11 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
   }, [canvasRef]);
 
   return (
-    <Box width="100%">
+    <Box width="100%" position={"relative"}>
       <canvas
         ref={canvasRef}
         width={canvasWidth}
-        height={200}
+        height={canvasHeight}
         style={{ background: "white" }}
         // Mouse events
         onMouseDown={(event) => {
@@ -200,7 +204,22 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
         }}
       />
       {isUserDrawing && (
-        <button onClick={handleClearCanvas}>Clear Canvas</button>
+        <Button
+          onClick={handleClearCanvas}
+          sx={{
+            borderRadius: "50%",
+            minWidth: "40px",
+            width: "40px",
+            height: "40px",
+            position: "absolute",
+            top: `${canvasHeight}px`,
+            left: "0",
+            transform: "translate(8px, calc(-100% - 8px))",
+          }}
+          variant="contained"
+        >
+          <DeleteOutlineOutlinedIcon />
+        </Button>
       )}
     </Box>
   );
