@@ -32,183 +32,28 @@ const PlayerList = ({ players }: PlayerListProps) => {
         }}
       >
         {players.map((player) => (
-          <>
-            <Paper sx={{ marginBottom: 0.5 }} key={player.name}>
-              <ListItem
-                alignItems="flex-start"
-                sx={{ paddingY: 0, paddingX: 1 }}
-              >
-                <ListItemAvatar>
-                  <Avatar alt={player.name} src="/static/images/avatar/1.jpg" />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={player.name}
-                  secondaryTypographyProps={{
-                    sx: { lineHeight: 1.3 },
-                    variant: "caption",
-                    component: "span",
-                  }}
-                  secondary={
-                    <>
-                      {`${player.score} Pts.`}
-                      <br />
-                      Status: {player.networkStatus}
-                    </>
-                  }
-                />
-              </ListItem>
-            </Paper>
-            <Paper sx={{ marginBottom: 0.5 }} key={player.name}>
-              <ListItem
-                alignItems="flex-start"
-                sx={{ paddingY: 0, paddingX: 1 }}
-              >
-                <ListItemAvatar>
-                  <Avatar alt={player.name} src="/static/images/avatar/1.jpg" />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={player.name}
-                  secondaryTypographyProps={{
-                    sx: { lineHeight: 1.3 },
-                    variant: "caption",
-                    component: "span",
-                  }}
-                  secondary={
-                    <>
-                      {`${player.score} Pts.`}
-                      <br />
-                      Status: {player.networkStatus}
-                    </>
-                  }
-                />
-              </ListItem>
-            </Paper>
-            <Paper sx={{ marginBottom: 0.5 }} key={player.name}>
-              <ListItem
-                alignItems="flex-start"
-                sx={{ paddingY: 0, paddingX: 1 }}
-              >
-                <ListItemAvatar>
-                  <Avatar alt={player.name} src="/static/images/avatar/1.jpg" />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={player.name}
-                  secondaryTypographyProps={{
-                    sx: { lineHeight: 1.3 },
-                    variant: "caption",
-                    component: "span",
-                  }}
-                  secondary={
-                    <>
-                      {`${player.score} Pts.`}
-                      <br />
-                      Status: {player.networkStatus}
-                    </>
-                  }
-                />
-              </ListItem>
-            </Paper>
-            <Paper sx={{ marginBottom: 0.5 }} key={player.name}>
-              <ListItem
-                alignItems="flex-start"
-                sx={{ paddingY: 0, paddingX: 1 }}
-              >
-                <ListItemAvatar>
-                  <Avatar alt={player.name} src="/static/images/avatar/1.jpg" />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={player.name}
-                  secondaryTypographyProps={{
-                    sx: { lineHeight: 1.3 },
-                    variant: "caption",
-                    component: "span",
-                  }}
-                  secondary={
-                    <>
-                      {`${player.score} Pts.`}
-                      <br />
-                      Status: {player.networkStatus}
-                    </>
-                  }
-                />
-              </ListItem>
-            </Paper>
-            <Paper sx={{ marginBottom: 0.5 }} key={player.name}>
-              <ListItem
-                alignItems="flex-start"
-                sx={{ paddingY: 0, paddingX: 1 }}
-              >
-                <ListItemAvatar>
-                  <Avatar alt={player.name} src="/static/images/avatar/1.jpg" />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={player.name}
-                  secondaryTypographyProps={{
-                    sx: { lineHeight: 1.3 },
-                    variant: "caption",
-                    component: "span",
-                  }}
-                  secondary={
-                    <>
-                      {`${player.score} Pts.`}
-                      <br />
-                      Status: {player.networkStatus}
-                    </>
-                  }
-                />
-              </ListItem>
-            </Paper>
-            <Paper sx={{ marginBottom: 0.5 }} key={player.name}>
-              <ListItem
-                alignItems="flex-start"
-                sx={{ paddingY: 0, paddingX: 1 }}
-              >
-                <ListItemAvatar>
-                  <Avatar alt={player.name} src="/static/images/avatar/1.jpg" />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={player.name}
-                  secondaryTypographyProps={{
-                    sx: { lineHeight: 1.3 },
-                    variant: "caption",
-                    component: "span",
-                  }}
-                  secondary={
-                    <>
-                      {`${player.score} Pts.`}
-                      <br />
-                      Status: {player.networkStatus}
-                    </>
-                  }
-                />
-              </ListItem>
-            </Paper>
-            <Paper sx={{ marginBottom: 0.5 }} key={player.name}>
-              <ListItem
-                alignItems="flex-start"
-                sx={{ paddingY: 0, paddingX: 1 }}
-              >
-                <ListItemAvatar>
-                  <Avatar alt={player.name} src="/static/images/avatar/1.jpg" />
-                </ListItemAvatar>
-                <ListItemText
-                  primary={player.name}
-                  secondaryTypographyProps={{
-                    sx: { lineHeight: 1.3 },
-                    variant: "caption",
-                    component: "span",
-                  }}
-                  secondary={
-                    <>
-                      {`${player.score} Pts.`}
-                      <br />
-                      Status: {player.networkStatus}
-                    </>
-                  }
-                />
-              </ListItem>
-            </Paper>
-          </>
+          <Paper sx={{ marginBottom: 0.5 }} key={player.name}>
+            <ListItem alignItems="flex-start" sx={{ paddingY: 0, paddingX: 1 }}>
+              <ListItemAvatar>
+                <Avatar alt={player.name} src="/static/images/avatar/1.jpg" />
+              </ListItemAvatar>
+              <ListItemText
+                primary={player.name}
+                secondaryTypographyProps={{
+                  sx: { lineHeight: 1.3 },
+                  variant: "caption",
+                  component: "span",
+                }}
+                secondary={
+                  <>
+                    {`${player.score} Pts.`}
+                    <br />
+                    Status: {player.networkStatus}
+                  </>
+                }
+              />
+            </ListItem>
+          </Paper>
         ))}
       </List>
     </Box>
