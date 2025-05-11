@@ -7,7 +7,10 @@ const GamePage = () => {
     <Box
       display="flex"
       marginTop={{ xs: "56px", md: "64px" }}
-      height={{ xs: "calc(100vh - 56px)", md: "calc(100vh - 64px)" }}
+      height={{
+        xs: `${window.innerHeight - 56}px`,
+        md: `${window.innerHeight - 64}px`,
+      }}
       overflow="hidden"
     >
       <Box

@@ -18,6 +18,7 @@ import { GameActionTypes, gameReducer } from "../GameLayout/gameReducer";
 import GameLayoutMobile from "../GameLayout/GameLayoutMobile";
 import GameLayoutDesktop from "../GameLayout/GameLayoutDesktop";
 import Canvas from "../Canvas/Canvas";
+const startYMap = new Map();
 
 enum NetworkStatus {
   Online = "online",
@@ -65,15 +66,50 @@ const GameContainer = ({ initialGame }: GameContainerProps) => {
   );
 
   useEffect(() => {
-    const preventDefault = (e: TouchEvent) => {
-      e.preventDefault();
+    const handleTouchStart = (e: TouchEvent) => {
+      const scrollableElement = e.target?.closest(".scrollable");
+      if (!scrollableElement) {
+        return;
+      }
+      startYMap.set(scrollableElement, e.touches[0].clientY);
+    };
+    const handleTouchMove = (e: TouchEvent) => {
+      const scrollableElement = e.target?.closest(".scrollable");
+
+      // Prevent swipe to refresh for all ements explicitly if marked as scrollable
+      if (!scrollableElement) {
+        e.preventDefault();
+        return;
+      }
+
+      const startY = startYMap.get(scrollableElement); // Retrieve the starting Y position
+      const currentY = e.touches[0].clientY;
+
+      const isSwipingDown = currentY < startY;
+      const isSwipingUp = currentY > startY;
+
+      const isAtBottom =
+        scrollableElement.scrollHeight - scrollableElement.scrollTop <=
+        scrollableElement.clientHeight + 1;
+
+      const isAtTop = scrollableElement.scrollTop <= 0;
+
+      // To prevent swipe to refresh we can only allow user to scroll content
+      // if the scrollable element is not at the top or bottom of the scrollable area
+      // and the user is swiping in the opposite direction of the scrollable area
+      if ((isAtBottom && isSwipingDown) || (isAtTop && isSwipingUp)) {
+        e.preventDefault();
+      }
     };
 
-    // Disable swipe-to-refresh
-    document.addEventListener("touchmove", preventDefault, { passive: false });
+    document.addEventListener("touchstart", handleTouchStart, {
+      passive: false,
+    });
+    document.addEventListener("touchmove", handleTouchMove, { passive: false });
 
     return () => {
-      document.removeEventListener("touchmove", preventDefault);
+      document.removeEventListener("touchstart", handleTouchStart);
+      document.removeEventListener("touchmove", handleTouchMove);
     };
   }, []);
 

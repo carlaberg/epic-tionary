@@ -14,22 +14,25 @@ interface PlayerListProps {
 
 const PlayerList = ({ players }: PlayerListProps) => {
   return (
-    <Box>
+    <Box height="100%" width="100%">
       <Typography variant="caption" component="div">
         Players
       </Typography>
 
       <List
+        className="scrollable"
         sx={{
           width: "100%",
+          height: "100%",
           maxWidth: 360,
           bgcolor: "none",
           paddingTop: 0,
-          paddingBottom: 0,
+          paddingBottom: "calc(16px - 2px)",
+          overflowY: "scroll",
         }}
       >
         {players.map((player) => (
-          <Paper sx={{ marginBottom: 1 }} key={player.name}>
+          <Paper sx={{ marginBottom: 0.5 }} key={player.name}>
             <ListItem alignItems="flex-start" sx={{ paddingY: 0, paddingX: 1 }}>
               <ListItemAvatar>
                 <Avatar alt={player.name} src="/static/images/avatar/1.jpg" />

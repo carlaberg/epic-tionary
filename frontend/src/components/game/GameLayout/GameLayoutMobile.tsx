@@ -18,6 +18,7 @@ import { PlayerState } from "../GameContainer/GameContainer";
 import Grid from "@mui/material/Grid";
 import Chip from "@mui/material/Chip";
 import GuessBox from "../GuessBox/GuessBox";
+import Paper from "@mui/material/Paper";
 
 interface GameLayoutMobileProps {
   gameState: Game;
@@ -56,9 +57,7 @@ const GameLayoutMobile = ({
       marginTop="56px"
       height={`${window.innerHeight - 56}px`}
       flexDirection="column"
-      overflow="hidden"
       padding={{ xs: 2, md: 3 }}
-      paddingBottom={{ xs: 0, md: 3 }}
       sx={{ backgroundColor: "grey.100" }}
     >
       {!gameState.started && (
@@ -74,15 +73,13 @@ const GameLayoutMobile = ({
               ? "Start the game when all players are ready"
               : "Waiting for host to start the game..."}
           </Typography>
-          <Box marginBottom={4}>
-            <PlayerList players={players} />
-          </Box>
         </Box>
       )}
       {!gameState.started && isHost && (
         <Button
           variant="contained"
           size="large"
+          sx={{ marginBottom: 4 }}
           onClick={async () => {
             const game = await startGame(gameState.id);
             if (socket) {
@@ -102,46 +99,57 @@ const GameLayoutMobile = ({
           Start
         </Button>
       )}
-
+      {!gameState.started && (
+        <Box flexGrow={1} height="100%" overflow="hidden">
+          <PlayerList players={players} />
+        </Box>
+      )}
       {gameState.started && (
-        <Box order={{ xs: 2, md: 1 }} sx={{ flexGrow: 1, paddingTop: 1 }}>
-          <Grid container spacing={2} height="100%">
-            <Grid item xs={6}>
-              <PlayerList players={players} />
-            </Grid>
-            <Grid item xs={6}>
-              <GuessList guesses={gameState?.currentRound?.guesses || []} />
-            </Grid>
-          </Grid>
-        </Box>
-      )}
-
-      <Box display={"flex"} flexDirection={"column"} order={{ xs: 1, md: 2 }}>
-        {gameState.word && isUserDrawing && (
-          <Chip label={`Word: ${gameState.word}`} sx={{ marginBottom: 2 }} />
-        )}
-        {gameState.started && (
-          <Box display={"flex"} justifyContent={"space-between"}>
-            <Typography variant="caption" component="div">
-              Time left: {roundCounter}
-            </Typography>
-            <Typography variant="caption" component="div">
-              Round:{" "}
-              {`${gameState.rounds.length} / ${gameState.players.length * 3}`}
-            </Typography>
+        <>
+          <Box display={"flex"} flexDirection={"column"}>
+            {gameState.word && isUserDrawing && (
+              <Chip
+                label={`Word: ${gameState.word}`}
+                sx={{ marginBottom: 2 }}
+              />
+            )}
+            {gameState.started && (
+              <Box display={"flex"} justifyContent={"space-between"}>
+                <Typography variant="caption" component="div">
+                  Time left: {roundCounter}
+                </Typography>
+                <Typography variant="caption" component="div">
+                  Round:{" "}
+                  {`${gameState.rounds.length} / ${
+                    gameState.players.length * 3
+                  }`}
+                </Typography>
+              </Box>
+            )}
+            {gameState.started && <Box marginLeft={-2}>{canvasInstance}</Box>}
           </Box>
-        )}
-        {gameState.started && <Box marginLeft={-2}>{canvasInstance}</Box>}
-      </Box>
-      {gameState.started && !isUserDrawing && (
-        <Box
-          order={{ xs: 3, md: 3 }}
-          sx={{ backgroundColor: "white", marginX: -2, padding: 2 }}
-        >
-          <GuessBox gameState={gameState} />
-        </Box>
+          <Box
+            sx={{
+              flexGrow: 1,
+              height: "100%",
+              overflow: "hidden",
+            }}
+          >
+            <Grid container spacing={2} height="100%" marginTop="0">
+              <Grid item xs={6} height="100%">
+                <PlayerList players={players} />
+              </Grid>
+              <Grid item xs={6} height="100%">
+                <GuessList
+                  guesses={gameState?.currentRound?.guesses || []}
+                  gameState={gameState}
+                  isUserDrawing={isUserDrawing}
+                />
+              </Grid>
+            </Grid>
+          </Box>
+        </>
       )}
-
       <MessageModal
         handleClose={() => {}}
         variables={{

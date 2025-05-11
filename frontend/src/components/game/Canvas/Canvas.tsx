@@ -7,7 +7,6 @@ import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { Game } from "@/db/entity/game/game.entity";
 import { DrawPayload } from "../../../../../shared/types/socket-io.types";
-import IconButton from "@mui/material/IconButton";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import Button from "@mui/material/Button";
 
@@ -25,7 +24,7 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
   const canvasWidth = isDesktop ? 800 : window.innerWidth;
-  const canvasHeight = canvasWidth * (3 / 4);
+  const canvasHeight = canvasWidth * (2 / 3);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);

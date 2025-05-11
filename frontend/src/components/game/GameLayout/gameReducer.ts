@@ -5,6 +5,7 @@ export enum GameActionTypes {
   INCREMENT_SCORE = "INCREMENT_SCORE",
   GUESS = "GUESS",
   ADD_CORRECT_GUESSER = "ADD_CORRECT_GUESSER",
+  ADD_GUESS = "ADD_GUESS",
 }
 
 export interface SetStateGameAction {
@@ -31,12 +32,19 @@ export interface AddCorrectGuesserGameAction {
   };
 }
 
+export interface AddGuessGameAction {
+  type: GameActionTypes.ADD_GUESS;
+  payload: {
+    guess: string;
+  };
+}
+
 export type GameActions =
   | SetStateGameAction
   | GuessGameAction
   | IncrementScoreGameAction
-  | AddCorrectGuesserGameAction;
-
+  | AddCorrectGuesserGameAction
+  | AddGuessGameAction;
 
 export const gameReducer = (state: Game, action: GameActions): Game => {
   switch (action.type) {
@@ -68,6 +76,14 @@ export const gameReducer = (state: Game, action: GameActions): Game => {
             ...state.currentRound.correctGuessers,
             action.payload.playerId,
           ],
+        },
+      };
+    case GameActionTypes.ADD_GUESS:
+      return {
+        ...state,
+        currentRound: {
+          ...state.currentRound,
+          guesses: [...state.currentRound.guesses, action.payload.guess],
         },
       };
     default:

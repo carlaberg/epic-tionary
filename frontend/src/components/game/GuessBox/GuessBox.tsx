@@ -4,7 +4,7 @@ import { useUser } from "@/providers/UserProvider";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import MessageModal from "../MessageModal/MessageModal";
 import { updateRound } from "@/actions/round";
 import { updatePlayer } from "@/actions/player";
@@ -27,9 +27,12 @@ const GuessBox = ({ gameState }: GuessBoxProps) => {
     message: "",
   });
   const [guess, setGuess] = useState("");
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log("handling submit after");
+    console.log("guess", guess);
 
     const stateBackup = gameState;
 
@@ -127,19 +130,30 @@ const GuessBox = ({ gameState }: GuessBoxProps) => {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    console.log("Key pressed:", e);
+    if (e.code === "Enter") {
+      console.log("bananan");
+      e.preventDefault(); // Prevent default Enter behavior
+      handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>); // Trigger form submission
+    }
+  };
+
   const handleBlur = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
     <Box>
-      <form onSubmit={handleSubmit}>
+      <form ref={formRef} onSubmit={handleSubmit} action="...">
         <TextField
           type="text"
+          inputProps={{ enterKeyHint: "guess" }}
           value={guess}
           onChange={(e) => setGuess(e.target.value)}
+          onKeyDown={handleKeyDown}
           onBlur={handleBlur}
-          // size="small"
+          size="small"
           fullWidth
           sx={{
             "& .MuiInputBase-root": {
