@@ -151,7 +151,7 @@ const GuessBox = ({ gameState }: GuessBoxProps) => {
           inputProps={{ enterKeyHint: "guess" }}
           value={guess}
           onChange={(e) => setGuess(e.target.value)}
-          onKeyDown={handleKeyDown}
+          // onKeyDown={handleKeyDown}
           onBlur={handleBlur}
           size="small"
           fullWidth
