@@ -54,15 +54,12 @@ const GameLayoutMobile = ({
   const userContext = useUser();
 
   useEffect(() => {
-    // Function to update the window height
     const handleResize = () => {
       setWindowHeight(window.innerHeight);
     };
 
-    // Add event listener for window resize
     window.addEventListener("resize", handleResize);
 
-    // Cleanup the event listener on component unmount
     return () => {
       window.removeEventListener("resize", handleResize);
     };

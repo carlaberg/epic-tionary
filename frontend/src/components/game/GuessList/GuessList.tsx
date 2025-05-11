@@ -41,6 +41,7 @@ const GuessList = ({ guesses, gameState, isUserDrawing }: GuessListProps) => {
           flexGrow: 1,
           display: "flex",
           flexDirection: "column",
+          overflowY: "hidden",
           padding: 1,
         }}
       >

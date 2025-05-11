@@ -67,14 +67,21 @@ const GameContainer = ({ initialGame }: GameContainerProps) => {
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
-      const scrollableElement = (e.target as Element)?.closest(".scrollable");
+      const target = e.target as Element;
+      const scrollableElement = target.classList.contains("scrollable")
+        ? target
+        : target.closest(".scrollable");
+      console.log("scrollableElement in touch start", scrollableElement);
       if (!scrollableElement) {
         return;
       }
       startYMap.set(scrollableElement, e.touches[0].clientY);
     };
     const handleTouchMove = (e: TouchEvent) => {
-      const scrollableElement = (e.target as Element)?.closest(".scrollable");
+      const target = e.target as Element;
+      const scrollableElement = target.classList.contains("scrollable")
+        ? target
+        : target.closest(".scrollable");
 
       // Prevent swipe to refresh for all ements explicitly if marked as scrollable
       if (!scrollableElement) {
@@ -93,6 +100,16 @@ const GameContainer = ({ initialGame }: GameContainerProps) => {
         scrollableElement.clientHeight + 1;
 
       const isAtTop = scrollableElement.scrollTop <= 0;
+
+      console.log({
+        isAtBottom,
+        isAtTop,
+        scrollableElement,
+        isSwipingDown,
+        isSwipingUp,
+        isScrollDisabled:
+          (isAtBottom && isSwipingDown) || (isAtTop && isSwipingUp),
+      });
 
       // To prevent swipe to refresh we can only allow user to scroll content
       // if the scrollable element is not at the top or bottom of the scrollable area
