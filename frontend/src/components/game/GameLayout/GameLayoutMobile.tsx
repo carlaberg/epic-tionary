@@ -17,6 +17,7 @@ import PlayerList from "../PlayerList/PlayerList";
 import { PlayerState } from "../GameContainer/GameContainer";
 import Grid from "@mui/material/Grid";
 import Chip from "@mui/material/Chip";
+import { useEffect, useState } from "react";
 import GuessBox from "../GuessBox/GuessBox";
 import Paper from "@mui/material/Paper";
 
@@ -49,13 +50,29 @@ const GameLayoutMobile = ({
   modalProps,
   canvasInstance,
 }: GameLayoutMobileProps) => {
+  const [windowHeight, setWindowHeight] = useState(window.innerHeight);
   const userContext = useUser();
+
+  useEffect(() => {
+    // Function to update the window height
+    const handleResize = () => {
+      setWindowHeight(window.innerHeight);
+    };
+
+    // Add event listener for window resize
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup the event listener on component unmount
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   return (
     <Box
       display={{ xs: "flex", md: "none" }}
       marginTop="56px"
-      height={`${window.innerHeight - 56}px`}
+      height={`${windowHeight - 56}px`}
       flexDirection="column"
       padding={{ xs: 2, md: 3 }}
       sx={{ backgroundColor: "grey.100" }}
