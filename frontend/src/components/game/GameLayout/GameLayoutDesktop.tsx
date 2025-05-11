@@ -64,7 +64,11 @@ const GameLayoutDesktop = ({
         borderColor="grey.300"
       >
         {gameState.started && (
-          <GuessList guesses={gameState?.currentRound?.guesses || []} />
+          <GuessList
+            guesses={gameState?.currentRound?.guesses || []}
+            gameState={gameState}
+            isUserDrawing={isUserDrawing}
+          />
         )}
       </Box>
       <Box
