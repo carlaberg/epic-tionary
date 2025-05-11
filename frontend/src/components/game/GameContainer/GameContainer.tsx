@@ -67,14 +67,14 @@ const GameContainer = ({ initialGame }: GameContainerProps) => {
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
-      const scrollableElement = e.target?.closest(".scrollable");
+      const scrollableElement = (e.target as Element)?.closest(".scrollable");
       if (!scrollableElement) {
         return;
       }
       startYMap.set(scrollableElement, e.touches[0].clientY);
     };
     const handleTouchMove = (e: TouchEvent) => {
-      const scrollableElement = e.target?.closest(".scrollable");
+      const scrollableElement = (e.target as Element)?.closest(".scrollable");
 
       // Prevent swipe to refresh for all ements explicitly if marked as scrollable
       if (!scrollableElement) {
