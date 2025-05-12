@@ -21,9 +21,6 @@ const GuessList = ({ guesses, gameState, isUserDrawing }: GuessListProps) => {
     }
   }, [guesses]);
 
-  console.log("gameState", gameState);
-  console.log("isUserDrawing", isUserDrawing);
-  console.log("guesses", guesses);
   return (
     <Box
       height="100%"

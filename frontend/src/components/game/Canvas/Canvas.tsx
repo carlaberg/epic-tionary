@@ -31,6 +31,7 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
   const [context, setContext] = useState<CanvasRenderingContext2D | null>(null);
   const socketContext = useSocket();
   const socket = socketContext.state.socket;
+  const socketRef = useRef(socket);
 
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const isDrawingRef = useRef(false);
@@ -100,7 +101,7 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
 
   useEffect(() => {
     if (!socket) return;
-    socket.connect();
+    socketRef.current = socket;
 
     socket.on("startDrawing", startDrawingSocketEventHandler);
     socket.on("draw", drawSocketEventHandler);
@@ -117,7 +118,7 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
 
       socket.disconnect();
     };
-  }, [context]);
+  }, [socket]);
 
   // Touch event handlers
   const handleTouchStartDrawing = (event: TouchEvent) => {
@@ -126,7 +127,7 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
 
     const { x, y } = getPointerPosFromTouch(event, canvasRef);
     startDrawing({ x, y });
-    socket?.emit("startDrawing", { gameId: game.id, x, y });
+    socketRef.current?.emit("startDrawing", { gameId: game.id, x, y });
   };
 
   const handleTouchDraw = (event: TouchEvent) => {
@@ -134,17 +135,17 @@ const Canvas = ({ isUserDrawing, game }: CanvasProps) => {
     event.preventDefault();
     const { x, y } = getPointerPosFromTouch(event, canvasRef);
     draw({ x, y });
-    socket?.emit("draw", { gameId: game.id, x, y });
+    socketRef.current?.emit("draw", { gameId: game.id, x, y });
   };
 
   const handleTouchStopDrawing = () => {
     stopDrawing();
-    socket?.emit("stopDrawing", game.id);
+    socketRef.current?.emit("stopDrawing", game.id);
   };
 
   const handleClearCanvas = () => {
     painterRef.current?.clearCanvas();
-    socket?.emit("clearCanvas", game.id);
+    socketRef.current?.emit("clearCanvas", game.id);
   };
 
   useEffect(() => {

@@ -71,7 +71,7 @@ const GameContainer = ({ initialGame }: GameContainerProps) => {
       const scrollableElement = target.classList.contains("scrollable")
         ? target
         : target.closest(".scrollable");
-      console.log("scrollableElement in touch start", scrollableElement);
+
       if (!scrollableElement) {
         return;
       }
@@ -100,16 +100,6 @@ const GameContainer = ({ initialGame }: GameContainerProps) => {
         scrollableElement.clientHeight + 1;
 
       const isAtTop = scrollableElement.scrollTop <= 0;
-
-      console.log({
-        isAtBottom,
-        isAtTop,
-        scrollableElement,
-        isSwipingDown,
-        isSwipingUp,
-        isScrollDisabled:
-          (isAtBottom && isSwipingDown) || (isAtTop && isSwipingUp),
-      });
 
       // To prevent swipe to refresh we can only allow user to scroll content
       // if the scrollable element is not at the top or bottom of the scrollable area
@@ -305,7 +295,7 @@ const GameContainer = ({ initialGame }: GameContainerProps) => {
   useEffect(() => {
     if (!socket) return;
 
-    socket.emit("joinGame", { id: gameState.id });
+    socket.emit("joinGame", { id: initialGame.id });
 
     socket.on("joinGame", onJoinGame);
     socket.on("startGame", onStartGame);
